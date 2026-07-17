@@ -3,6 +3,8 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { Header } from "@/components/Header";
 import { BottomNav } from "@/components/BottomNav";
+import { AddTransactionSheet } from "@/components/AddTransactionSheet";
+import { FinlyProvider } from "@/lib/store";
 
 const inter = Inter({
   subsets: ["latin", "latin-ext"],
@@ -23,11 +25,14 @@ export default function RootLayout({
   return (
     <html lang="pl" className={inter.variable}>
       <body className="bg-slate-200 font-sans text-slate-900 antialiased">
-        <div className="relative mx-auto flex min-h-screen w-full max-w-md flex-col bg-slate-50 shadow-lg">
-          <Header />
-          <main className="flex-1 px-4 pb-28 pt-2">{children}</main>
-          <BottomNav />
-        </div>
+        <FinlyProvider>
+          <div className="relative mx-auto flex min-h-screen w-full max-w-md flex-col bg-slate-50 shadow-lg">
+            <Header />
+            <main className="flex-1 px-4 pb-28 pt-2">{children}</main>
+            <BottomNav />
+            <AddTransactionSheet />
+          </div>
+        </FinlyProvider>
       </body>
     </html>
   );

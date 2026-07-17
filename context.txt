@@ -201,3 +201,19 @@ Category (kategoria):
   pod shadcn/ui). Kolor przewodni: emerald (brand w tailwind.config).
   npm install + npm run dev zweryfikowane — aplikacja startuje bez
   błędów pod http://localhost:3000.
+[2026-07-17] Etap 2 — interaktywne demo (Claude Code). Aplikacja jest
+  teraz w pełni klikalna: przycisk "+" otwiera formularz dodawania
+  transakcji (dochód/wydatek, kwota, tytuł, kategoria, data, notatka),
+  transakcje na pulpicie można kliknąć i zobaczyć szczegóły (typ, data,
+  kategoria, notatka "dla kogo/na co") oraz usunąć. Nowe podstrony:
+  /cele (paski postępu, wpłaty na cel, dodawanie/usuwanie celów,
+  komunikat "Brawo!" po osiągnięciu) i /aktywa (suma majątku,
+  aktualizacja wartości, dodawanie/usuwanie aktywów). Dolna nawigacja
+  działa jako prawdziwe linki z podświetleniem aktywnej zakładki.
+  Dane trzymane w localStorage (klucz "finly-data-v1") przez
+  FinlyProvider (lib/store.tsx); przy pierwszym uruchomieniu ładowane
+  są dane demo (m.in. transakcja "Prezent dla mamy", cele iPad
+  i wakacje, aktywa: gotówka, konto, rower). Nowe pliki: lib/types.ts,
+  lib/store.tsx, components/Modal.tsx, components/AddTransactionSheet.tsx,
+  components/TransactionList.tsx, app/cele/page.tsx, app/aktywa/page.tsx.
+  Kwoty i daty formatowane po polsku (Intl, lib/utils.ts).
