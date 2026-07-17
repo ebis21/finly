@@ -29,8 +29,8 @@ export function TransactionList() {
 
   if (sorted.length === 0) {
     return (
-      <div className="rounded-2xl bg-white p-8 text-center shadow-sm">
-        <p className="text-sm text-slate-400">
+      <div className="brick p-8 text-center">
+        <p className="text-sm font-semibold text-ink/50">
           Brak transakcji. Dodaj pierwszą przyciskiem{" "}
           <span className="font-bold text-brand-dark">+</span>
         </p>
@@ -40,24 +40,29 @@ export function TransactionList() {
 
   return (
     <>
-      <ul className="flex flex-col gap-2">
+      <ul className="flex flex-col gap-2.5">
         {sorted.map((t) => (
           <li key={t.id}>
             <button
               type="button"
               onClick={() => setSelectedId(t.id)}
-              className="flex w-full items-center gap-3 rounded-2xl bg-white p-3 text-left shadow-sm transition-colors hover:bg-slate-100"
+              className="brick brick-press flex w-full items-center gap-3 p-3 text-left hover:bg-paper"
             >
-              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-slate-100 text-lg">
+              <span
+                className={cn(
+                  "flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border-2 border-ink text-lg",
+                  t.type === "income" ? "bg-brand-light" : "bg-rose-100"
+                )}
+              >
                 {CATEGORY_EMOJI[t.category] ?? "💰"}
               </span>
               <span className="min-w-0 flex-1">
-                <span className="block truncate font-medium">{t.title}</span>
-                <span className="block text-xs text-slate-400">
+                <span className="block truncate font-bold">{t.title}</span>
+                <span className="block text-xs font-semibold text-ink/40">
                   {t.category} · {formatDate(t.date)}
                 </span>
               </span>
-              <Amount transaction={t} className="text-sm font-bold" />
+              <Amount transaction={t} className="font-display text-sm font-bold" />
             </button>
           </li>
         ))}
@@ -66,13 +71,13 @@ export function TransactionList() {
       {selected && (
         <Modal title={selected.title} onClose={() => setSelectedId(null)}>
           <div className="flex flex-col gap-4">
-            <div className="rounded-2xl bg-slate-50 p-4 text-center">
+            <div className="rounded-2xl border-2 border-ink bg-paper p-4 text-center">
               <Amount
                 transaction={selected}
-                className="text-3xl font-bold tracking-tight"
+                className="font-display text-3xl font-bold tracking-tight"
               />
             </div>
-            <dl className="flex flex-col divide-y divide-slate-100">
+            <dl className="flex flex-col divide-y-2 divide-paper">
               <DetailRow
                 label="Typ"
                 value={selected.type === "income" ? "Dochód" : "Wydatek"}
@@ -122,8 +127,8 @@ function Amount({
 function DetailRow({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex items-start justify-between gap-4 py-2.5">
-      <dt className="shrink-0 text-sm text-slate-400">{label}</dt>
-      <dd className="text-right text-sm font-medium">{value}</dd>
+      <dt className="shrink-0 text-sm font-bold text-ink/40">{label}</dt>
+      <dd className="text-right text-sm font-bold">{value}</dd>
     </div>
   );
 }

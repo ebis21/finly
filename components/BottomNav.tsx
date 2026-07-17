@@ -17,7 +17,7 @@ export function BottomNav() {
   const { setAddOpen } = useFinly();
 
   return (
-    <nav className="fixed bottom-0 left-1/2 z-10 w-full max-w-md -translate-x-1/2 border-t border-slate-200 bg-white">
+    <nav className="fixed bottom-0 left-1/2 z-10 w-full max-w-md -translate-x-1/2 border-x-2 border-t-2 border-ink bg-white">
       <div className="grid grid-cols-4 items-center px-2 pb-2 pt-1">
         {items.slice(0, 2).map((item) => (
           <NavItem key={item.href} {...item} active={pathname === item.href} />
@@ -27,9 +27,9 @@ export function BottomNav() {
             type="button"
             aria-label="Dodaj transakcję"
             onClick={() => setAddOpen(true)}
-            className="-mt-6 flex h-14 w-14 items-center justify-center rounded-full bg-brand text-white shadow-lg shadow-brand/40 transition-colors hover:bg-brand-dark"
+            className="brick-press -mt-7 flex h-14 w-14 items-center justify-center rounded-full border-2 border-ink bg-brand text-white shadow-brick transition-colors hover:bg-brand-dark"
           >
-            <Plus className="h-7 w-7" strokeWidth={2.5} />
+            <Plus className="h-7 w-7" strokeWidth={3} />
           </button>
         </div>
         <NavItem {...items[2]} active={pathname === items[2].href} />
@@ -52,13 +52,19 @@ function NavItem({
   return (
     <Link
       href={href}
-      className={cn(
-        "flex flex-col items-center gap-0.5 py-1 text-xs font-medium",
-        active ? "text-brand-dark" : "text-slate-400"
-      )}
+      className="flex flex-col items-center gap-0.5 py-1 text-xs font-bold"
     >
-      <Icon className="h-6 w-6" />
-      {label}
+      <span
+        className={cn(
+          "rounded-xl border-2 px-2.5 py-1 transition-colors",
+          active
+            ? "border-ink bg-brand-light text-ink"
+            : "border-transparent text-ink/40"
+        )}
+      >
+        <Icon className="h-5 w-5" />
+      </span>
+      <span className={active ? "text-ink" : "text-ink/40"}>{label}</span>
     </Link>
   );
 }

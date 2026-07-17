@@ -64,10 +64,10 @@ export function AddTransactionSheet() {
             type="button"
             onClick={() => switchType("income")}
             className={cn(
-              "rounded-xl border py-2.5 text-sm font-bold transition-colors",
+              "rounded-2xl border-2 py-2.5 font-display text-sm font-bold transition-all",
               type === "income"
-                ? "border-brand bg-brand-light text-brand-dark"
-                : "border-slate-200 text-slate-400"
+                ? "border-ink bg-brand text-white shadow-brick-sm"
+                : "border-ink/20 bg-white text-ink/40"
             )}
           >
             Dochód
@@ -76,10 +76,10 @@ export function AddTransactionSheet() {
             type="button"
             onClick={() => switchType("expense")}
             className={cn(
-              "rounded-xl border py-2.5 text-sm font-bold transition-colors",
+              "rounded-2xl border-2 py-2.5 font-display text-sm font-bold transition-all",
               type === "expense"
-                ? "border-rose-300 bg-rose-50 text-rose-500"
-                : "border-slate-200 text-slate-400"
+                ? "border-ink bg-rose-400 text-white shadow-brick-sm"
+                : "border-ink/20 bg-white text-ink/40"
             )}
           >
             Wydatek

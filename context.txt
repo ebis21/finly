@@ -217,3 +217,15 @@ Category (kategoria):
   lib/store.tsx, components/Modal.tsx, components/AddTransactionSheet.tsx,
   components/TransactionList.tsx, app/cele/page.tsx, app/aktywa/page.tsx.
   Kwoty i daty formatowane po polsku (Intl, lib/utils.ts).
+[2026-07-17] Redesign "klockowy" (Claude Code). Nowy język wizualny
+  w stylu zabawkowych klocków (à la Lego/Duolingo): każda karta
+  i przycisk to "klocek" — grube obrysy (border-2, kolor ink #0c3529),
+  twardy cień 0 4px 0 (shadow-brick) i animacja wciskania przy
+  kliknięciu (klasy .brick / .brick-press w globals.css). Sygnatura:
+  wypustki Lego (components/Studs.tsx) na dużych kafelkach salda
+  (szmaragdowy) i majątku (żółty "sun" #ffc94d). Tło: mięta (mint),
+  wnętrze "ramki telefonu" paper z pionowymi obrysami. Typografia:
+  Baloo 2 (nagłówki i kwoty, --font-baloo) + Nunito (tekst,
+  --font-nunito), obie z latin-ext. Nowe tokeny w tailwind.config:
+  kolory ink/paper/mint/sun, cienie brick/brick-sm/brick-lg, fonty
+  sans/display. Inter zastąpiony przez Nunito.

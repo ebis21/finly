@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Plus } from "lucide-react";
 import { Modal } from "@/components/Modal";
+import { Studs } from "@/components/Studs";
 import { useFinly } from "@/lib/store";
 import { formatDate, formatPLN } from "@/lib/utils";
 
@@ -31,24 +32,25 @@ export default function AssetsPage() {
 
   return (
     <div className="flex flex-col gap-4">
-      <h1 className="text-2xl font-bold">Aktywa</h1>
+      <h1 className="font-display text-3xl font-bold">Aktywa</h1>
 
-      <section className="rounded-3xl bg-gradient-to-br from-brand to-brand-dark p-6 text-white shadow-lg shadow-brand/30">
-        <p className="text-sm font-medium text-emerald-100">Mój majątek</p>
-        <p className="mt-1 text-4xl font-bold tracking-tight">
+      <section className="rounded-3xl border-2 border-ink bg-sun p-5 text-ink shadow-brick-lg">
+        <Studs className="text-ink/20" />
+        <p className="mt-4 text-sm font-bold text-ink/60">Mój majątek</p>
+        <p className="font-display text-5xl font-bold tracking-tight">
           {formatPLN(total)}
         </p>
       </section>
 
       {assets.length === 0 && (
-        <div className="rounded-2xl bg-white p-8 text-center shadow-sm">
-          <p className="text-sm text-slate-400">
+        <div className="brick p-8 text-center">
+          <p className="text-sm font-semibold text-ink/50">
             Nie masz jeszcze żadnych aktywów. Dodaj pierwsze poniżej.
           </p>
         </div>
       )}
 
-      <ul className="flex flex-col gap-2">
+      <ul className="flex flex-col gap-2.5">
         {assets.map((a) => (
           <li key={a.id}>
             <button
@@ -57,18 +59,20 @@ export default function AssetsPage() {
                 setSelectedId(a.id);
                 setValue(String(a.value));
               }}
-              className="flex w-full items-center gap-3 rounded-2xl bg-white p-3 text-left shadow-sm transition-colors hover:bg-slate-100"
+              className="brick brick-press flex w-full items-center gap-3 p-3 text-left hover:bg-paper"
             >
-              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-slate-100 text-lg">
+              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border-2 border-ink bg-sun/40 text-lg">
                 {TYPE_EMOJI[a.type] ?? "📦"}
               </span>
               <span className="min-w-0 flex-1">
-                <span className="block truncate font-medium">{a.name}</span>
-                <span className="block text-xs text-slate-400">
+                <span className="block truncate font-bold">{a.name}</span>
+                <span className="block text-xs font-semibold text-ink/40">
                   {a.type} · aktualizacja {formatDate(a.updatedAt)}
                 </span>
               </span>
-              <span className="text-sm font-bold">{formatPLN(a.value)}</span>
+              <span className="font-display text-sm font-bold">
+                {formatPLN(a.value)}
+              </span>
             </button>
           </li>
         ))}
@@ -82,9 +86,9 @@ export default function AssetsPage() {
           setType(ASSET_TYPES[0]);
           setValue("");
         }}
-        className="flex items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-slate-300 py-4 text-sm font-bold text-slate-500 transition-colors hover:border-brand hover:text-brand-dark"
+        className="flex items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-ink/40 py-4 font-display text-sm font-bold text-ink/50 transition-colors hover:border-ink hover:text-ink"
       >
-        <Plus className="h-5 w-5" />
+        <Plus className="h-5 w-5" strokeWidth={2.5} />
         Nowe aktywo
       </button>
 
@@ -154,11 +158,11 @@ export default function AssetsPage() {
           onClose={() => setSelectedId(null)}
         >
           <div className="flex flex-col gap-4">
-            <div className="rounded-2xl bg-slate-50 p-4 text-center">
-              <p className="text-3xl font-bold tracking-tight">
+            <div className="rounded-2xl border-2 border-ink bg-paper p-4 text-center">
+              <p className="font-display text-3xl font-bold tracking-tight">
                 {formatPLN(selected.value)}
               </p>
-              <p className="mt-1 text-sm text-slate-400">
+              <p className="mt-1 text-sm font-semibold text-ink/40">
                 {selected.type} · aktualizacja {formatDate(selected.updatedAt)}
               </p>
             </div>

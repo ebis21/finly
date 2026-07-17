@@ -21,11 +21,11 @@ export default function GoalsPage() {
 
   return (
     <div className="flex flex-col gap-4">
-      <h1 className="text-2xl font-bold">Cele</h1>
+      <h1 className="font-display text-3xl font-bold">Cele</h1>
 
       {goals.length === 0 && (
-        <div className="rounded-2xl bg-white p-8 text-center shadow-sm">
-          <p className="text-sm text-slate-400">
+        <div className="brick p-8 text-center">
+          <p className="text-sm font-semibold text-ink/50">
             Nie masz jeszcze żadnego celu. Wymarz coś sobie! ✨
           </p>
         </div>
@@ -43,28 +43,30 @@ export default function GoalsPage() {
                   setSelectedId(g.id);
                   setDeposit("");
                 }}
-                className="w-full rounded-2xl bg-white p-4 text-left shadow-sm transition-colors hover:bg-slate-100"
+                className="brick brick-press w-full p-4 text-left hover:bg-paper"
               >
                 <div className="flex items-baseline justify-between gap-2">
-                  <span className="font-bold">🎯 {g.name}</span>
-                  <span className="text-sm font-medium text-slate-500">
+                  <span className="font-display text-lg font-bold">
+                    🎯 {g.name}
+                  </span>
+                  <span className="font-display text-sm font-bold text-ink/60">
                     {percent}%
                   </span>
                 </div>
-                <div className="mt-2 h-2.5 overflow-hidden rounded-full bg-slate-100">
+                <div className="mt-2 h-4 overflow-hidden rounded-full border-2 border-ink bg-white">
                   <div
-                    className="h-full rounded-full bg-brand transition-all"
+                    className={done ? "h-full bg-brand" : "h-full bg-sun"}
                     style={{ width: `${percent}%` }}
                   />
                 </div>
-                <p className="mt-2 text-sm text-slate-500">
+                <p className="mt-2 text-sm font-semibold text-ink/60">
                   {done ? (
                     <span className="font-bold text-brand-dark">
                       Brawo! Cel osiągnięty 🎉
                     </span>
                   ) : (
                     <>
-                      <span className="font-bold text-slate-700">
+                      <span className="font-bold text-ink">
                         {formatPLN(g.saved)}
                       </span>{" "}
                       z {formatPLN(g.target)} — zostało{" "}
@@ -85,9 +87,9 @@ export default function GoalsPage() {
           setName("");
           setTarget("");
         }}
-        className="flex items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-slate-300 py-4 text-sm font-bold text-slate-500 transition-colors hover:border-brand hover:text-brand-dark"
+        className="flex items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-ink/40 py-4 font-display text-sm font-bold text-ink/50 transition-colors hover:border-ink hover:text-ink"
       >
-        <Plus className="h-5 w-5" />
+        <Plus className="h-5 w-5" strokeWidth={2.5} />
         Nowy cel
       </button>
 
@@ -137,16 +139,16 @@ export default function GoalsPage() {
       {selected && (
         <Modal title={`🎯 ${selected.name}`} onClose={() => setSelectedId(null)}>
           <div className="flex flex-col gap-4">
-            <div className="rounded-2xl bg-slate-50 p-4 text-center">
-              <p className="text-3xl font-bold tracking-tight text-brand-dark">
+            <div className="rounded-2xl border-2 border-ink bg-paper p-4 text-center">
+              <p className="font-display text-3xl font-bold tracking-tight text-brand-dark">
                 {formatPLN(selected.saved)}
               </p>
-              <p className="mt-1 text-sm text-slate-400">
+              <p className="mt-1 text-sm font-semibold text-ink/40">
                 z {formatPLN(selected.target)}
               </p>
             </div>
             {selected.saved >= selected.target ? (
-              <p className="text-center font-bold text-brand-dark">
+              <p className="text-center font-display font-bold text-brand-dark">
                 Brawo! Cel osiągnięty 🎉
               </p>
             ) : (

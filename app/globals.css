@@ -3,16 +3,24 @@
 @tailwind utilities;
 
 @layer components {
+  /* Klocek: podstawowy budulec całego UI */
+  .brick {
+    @apply rounded-2xl border-2 border-ink bg-white shadow-brick;
+  }
+  /* Wciskanie klocka przy kliknięciu */
+  .brick-press {
+    @apply transition-all duration-100 active:translate-y-1 active:shadow-none motion-reduce:transition-none;
+  }
   .label {
-    @apply mb-1 block text-sm font-medium text-slate-600;
+    @apply mb-1 block text-sm font-bold text-ink/60;
   }
   .input {
-    @apply w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-base outline-none focus:border-brand focus:ring-2 focus:ring-brand/20;
+    @apply w-full rounded-2xl border-2 border-ink bg-white px-3 py-2.5 text-base font-semibold text-ink outline-none placeholder:text-ink/30 focus:ring-4 focus:ring-brand/30;
   }
   .btn-primary {
-    @apply w-full rounded-xl bg-brand py-3 text-base font-bold text-white transition-colors hover:bg-brand-dark disabled:opacity-40;
+    @apply w-full rounded-2xl border-2 border-ink bg-brand py-3 font-display text-base font-bold text-white shadow-brick transition-all duration-100 hover:bg-brand-dark active:translate-y-1 active:shadow-none disabled:opacity-40 disabled:active:translate-y-0 disabled:active:shadow-brick motion-reduce:transition-none;
   }
   .btn-danger {
-    @apply w-full rounded-xl border border-rose-200 py-3 text-base font-bold text-rose-500 transition-colors hover:bg-rose-50;
+    @apply w-full rounded-2xl border-2 border-ink bg-white py-3 font-display text-base font-bold text-rose-500 shadow-brick transition-all duration-100 hover:bg-rose-50 active:translate-y-1 active:shadow-none motion-reduce:transition-none;
   }
 }

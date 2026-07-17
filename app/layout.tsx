@@ -1,14 +1,19 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Baloo_2, Nunito } from "next/font/google";
 import "./globals.css";
 import { Header } from "@/components/Header";
 import { BottomNav } from "@/components/BottomNav";
 import { AddTransactionSheet } from "@/components/AddTransactionSheet";
 import { FinlyProvider } from "@/lib/store";
 
-const inter = Inter({
+const baloo = Baloo_2({
   subsets: ["latin", "latin-ext"],
-  variable: "--font-inter",
+  variable: "--font-baloo",
+});
+
+const nunito = Nunito({
+  subsets: ["latin", "latin-ext"],
+  variable: "--font-nunito",
 });
 
 export const metadata: Metadata = {
@@ -23,10 +28,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="pl" className={inter.variable}>
-      <body className="bg-slate-200 font-sans text-slate-900 antialiased">
+    <html lang="pl" className={`${baloo.variable} ${nunito.variable}`}>
+      <body className="bg-mint font-sans text-ink antialiased">
         <FinlyProvider>
-          <div className="relative mx-auto flex min-h-screen w-full max-w-md flex-col bg-slate-50 shadow-lg">
+          <div className="relative mx-auto flex min-h-screen w-full max-w-md flex-col border-x-2 border-ink bg-paper">
             <Header />
             <main className="flex-1 px-4 pb-28 pt-2">{children}</main>
             <BottomNav />
