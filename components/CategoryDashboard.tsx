@@ -175,7 +175,7 @@ export function CategoryDashboard({ type }: { type: TransactionType }) {
                   <button
                     type="button"
                     aria-label={`Usuń pozycję ${t.title}`}
-                    onClick={() => removeTransaction(t.id)}
+                    onClick={() => void removeTransaction(t.id)}
                     className="brick-press shrink-0 rounded-xl border-2 border-ink bg-white p-1.5 text-rose-500 shadow-brick-sm hover:bg-rose-50"
                   >
                     <Trash2 className="h-4 w-4" />

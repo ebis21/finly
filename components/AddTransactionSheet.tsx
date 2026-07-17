@@ -27,6 +27,7 @@ export function AddTransactionSheet() {
   const [category, setCategory] = useState("");
   const [date, setDate] = useState(() => new Date().toISOString().slice(0, 10));
   const [note, setNote] = useState("");
+  const [submitting, setSubmitting] = useState(false);
 
   if (!addOpen) return null;
 
@@ -38,9 +39,10 @@ export function AddTransactionSheet() {
     setCategory("");
   }
 
-  function submit() {
-    if (!valid) return;
-    addTransaction({
+  async function submit() {
+    if (!valid || submitting) return;
+    setSubmitting(true);
+    const result = await addTransaction({
       type,
       amount: parsedAmount,
       title: title.trim(),
@@ -48,6 +50,8 @@ export function AddTransactionSheet() {
       date,
       note: note.trim() || undefined,
     });
+    setSubmitting(false);
+    if (result.error) return;
     setAmount("");
     setTitle("");
     setCategory("");
@@ -161,8 +165,8 @@ export function AddTransactionSheet() {
           />
         </div>
 
-        <button type="button" className="btn-primary" disabled={!valid} onClick={submit}>
-          Dodaj
+        <button type="button" className="btn-primary" disabled={!valid || submitting} onClick={submit}>
+          {submitting ? "Zapisuję…" : "Dodaj"}
         </button>
       </div>
     </Modal>

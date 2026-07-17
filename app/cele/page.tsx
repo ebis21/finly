@@ -14,6 +14,7 @@ export default function GoalsPage() {
   const [name, setName] = useState("");
   const [target, setTarget] = useState("");
   const [deposit, setDeposit] = useState("");
+  const [submitting, setSubmitting] = useState(false);
 
   const selected = goals.find((g) => g.id === selectedId);
   const parsedTarget = parseFloat(target.replace(",", "."));
@@ -124,13 +125,15 @@ export default function GoalsPage() {
             <button
               type="button"
               className="btn-primary"
-              disabled={!(name.trim() && parsedTarget > 0)}
-              onClick={() => {
-                addGoal({ name: name.trim(), target: parsedTarget, saved: 0 });
-                setAddingOpen(false);
+              disabled={submitting || !(name.trim() && parsedTarget > 0)}
+              onClick={async () => {
+                setSubmitting(true);
+                const result = await addGoal({ name: name.trim(), target: parsedTarget, saved: 0 });
+                setSubmitting(false);
+                if (!result.error) setAddingOpen(false);
               }}
             >
-              Dodaj cel
+              {submitting ? "Zapisuję…" : "Dodaj cel"}
             </button>
           </div>
         </Modal>
@@ -168,13 +171,15 @@ export default function GoalsPage() {
                   <button
                     type="button"
                     className="btn-primary w-auto shrink-0 px-5"
-                    disabled={!(parsedDeposit > 0)}
-                    onClick={() => {
-                      depositToGoal(selected.id, parsedDeposit);
-                      setDeposit("");
+                    disabled={submitting || !(parsedDeposit > 0)}
+                    onClick={async () => {
+                      setSubmitting(true);
+                      const result = await depositToGoal(selected.id, parsedDeposit);
+                      setSubmitting(false);
+                      if (!result.error) setDeposit("");
                     }}
                   >
-                    Wpłać
+                    {submitting ? "Zapisuję…" : "Wpłać"}
                   </button>
                 </div>
               </div>
@@ -182,9 +187,12 @@ export default function GoalsPage() {
             <button
               type="button"
               className="btn-danger"
-              onClick={() => {
-                removeGoal(selected.id);
-                setSelectedId(null);
+              disabled={submitting}
+              onClick={async () => {
+                setSubmitting(true);
+                const result = await removeGoal(selected.id);
+                setSubmitting(false);
+                if (!result.error) setSelectedId(null);
               }}
             >
               Usuń cel

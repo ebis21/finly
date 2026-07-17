@@ -25,6 +25,7 @@ export default function AssetsPage() {
   const [name, setName] = useState("");
   const [type, setType] = useState(ASSET_TYPES[0]);
   const [value, setValue] = useState("");
+  const [submitting, setSubmitting] = useState(false);
 
   const selected = assets.find((a) => a.id === selectedId);
   const parsedValue = parseFloat(value.replace(",", "."));
@@ -140,13 +141,15 @@ export default function AssetsPage() {
             <button
               type="button"
               className="btn-primary"
-              disabled={!(name.trim() && parsedValue >= 0)}
-              onClick={() => {
-                addAsset({ name: name.trim(), type, value: parsedValue });
-                setAddingOpen(false);
+              disabled={submitting || !(name.trim() && parsedValue >= 0)}
+              onClick={async () => {
+                setSubmitting(true);
+                const result = await addAsset({ name: name.trim(), type, value: parsedValue });
+                setSubmitting(false);
+                if (!result.error) setAddingOpen(false);
               }}
             >
-              Dodaj aktywo
+              {submitting ? "Zapisuję…" : "Dodaj aktywo"}
             </button>
           </div>
         </Modal>
@@ -181,22 +184,27 @@ export default function AssetsPage() {
                 <button
                   type="button"
                   className="btn-primary w-auto shrink-0 px-5"
-                  disabled={!(parsedValue >= 0)}
-                  onClick={() => {
-                    updateAssetValue(selected.id, parsedValue);
-                    setSelectedId(null);
+                  disabled={submitting || !(parsedValue >= 0)}
+                  onClick={async () => {
+                    setSubmitting(true);
+                    const result = await updateAssetValue(selected.id, parsedValue);
+                    setSubmitting(false);
+                    if (!result.error) setSelectedId(null);
                   }}
                 >
-                  Zapisz
+                  {submitting ? "Zapisuję…" : "Zapisz"}
                 </button>
               </div>
             </div>
             <button
               type="button"
               className="btn-danger"
-              onClick={() => {
-                removeAsset(selected.id);
-                setSelectedId(null);
+              disabled={submitting}
+              onClick={async () => {
+                setSubmitting(true);
+                const result = await removeAsset(selected.id);
+                setSubmitting(false);
+                if (!result.error) setSelectedId(null);
               }}
             >
               Usuń aktywo
