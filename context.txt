@@ -98,13 +98,15 @@ Kierunek: WEB NAJPIERW, POTEM MOBILE.
 ========================================================================
 6. ZAKRES MVP — DECYZJA
 ========================================================================
-MVP: TYLKO DLA MNIE, LOKALNIE.
-- Na start bez logowania i kont użytkowników.
-- Dane trzymane lokalnie (w przeglądarce / lokalnej bazie).
-- Cel: jak najszybciej mieć działającą aplikację do przetestowania
-  i nauki, bez komplikacji z serwerem i uwierzytelnianiem.
-- Konta wielu użytkowników + chmura = dopiero kolejny etap, gdy MVP
-  będzie działać i będzie sens udostępniać innym.
+MVP: TRYB HYBRYDOWY — LOKALNIE LUB Z KONTEM.
+- Bez logowania aplikacja nadal działa w pełni lokalnie i zapisuje dane
+  w localStorage.
+- Po zalogowaniu dane użytkownika są przechowywane w Supabase i chronione
+  przez Row Level Security.
+- Przy pierwszym logowaniu lokalny portfel jest kopiowany do Supabase tylko
+  wtedy, gdy wszystkie kolekcje konta w chmurze są puste.
+- Dane lokalne nie są kasowane; po wylogowaniu lokalny portfel jest ponownie
+  dostępny. Dwa niepuste portfele nie są automatycznie scalane.
 
 
 ========================================================================
@@ -112,17 +114,14 @@ MVP: TYLKO DLA MNIE, LOKALNIE.
 ========================================================================
 (Dobrana pod prostotę i dobrą współpracę z Claude Code. Do potwierdzenia.)
 
-MVP (web, lokalnie):
+MVP (web, tryb hybrydowy):
 - Frontend: Next.js (React) + TypeScript.
 - Stylowanie: Tailwind CSS (szybko i ładnie, spójny wygląd).
 - Komponenty UI: shadcn/ui (gotowe, estetyczne elementy).
 - Wykresy: Recharts.
-- Dane lokalnie: na start localStorage lub IndexedDB (np. Dexie.js),
-  żeby nie stawiać serwera.
-
-Etap 2 (konta + chmura), gdy będzie potrzebny:
-- Supabase (baza Postgres + logowanie + synchronizacja) — prosty
-  i darmowy na start.
+- Dane lokalne: localStorage.
+- Konta i chmura: Supabase Auth + Postgres z RLS.
+- Testy jednostkowe: Vitest.
 
 Etap 3 (mobile):
 - React Native / Expo (można współdzielić dużo logiki z web),
@@ -263,3 +262,10 @@ Category (kategoria):
   TransactionChart i CategoryDashboard (prop type). Kolor podąża za
   typem w całej aplikacji: dochody emerald, wydatki rose (linia
   wykresu, paski kategorii, kwoty, aktywny przycisk przełącznika).
+[2026-07-17] Etap kont i chmury — tryb hybrydowy. Dodano Supabase Auth,
+  formularze logowania/rejestracji/wylogowania, schemat SQL z RLS oraz
+  zapis transakcji, celów i aktywów w Postgres. Bez konta Finly nadal
+  używa localStorage i danych demo. Pierwsze logowanie kopiuje lokalny
+  portfel wyłącznie do całkowicie pustego konta chmurowego; lokalna kopia
+  pozostaje bez zmian. Operacje chmurowe sprawdzają błędy przed zmianą UI.
+  Dodano Vitest i testy reguł migracji, mapowania, auth oraz adaptera chmury.

@@ -1,26 +1,43 @@
 # Finly 💰
 
-Prosta, ładna aplikacja do organizowania własnych finansów — osobisty portfel
-do ręcznego zapisywania dochodów, wydatków, celów oszczędnościowych i aktywów.
-Nie służy do płatności, tylko do śledzenia. Dla każdego, od dziecka po dorosłego.
+Prosta aplikacja do ręcznego organizowania dochodów, wydatków, celów oszczędnościowych i aktywów. Finly służy do śledzenia finansów, nie do wykonywania płatności.
 
 ## Status
-Etap 0 — przygotowanie. Kod aplikacji jeszcze nie zainicjowany.
 
-## Stack (planowany)
-- Next.js + TypeScript
-- Tailwind CSS + shadcn/ui
-- Recharts (wykresy)
-- Dane lokalnie: localStorage / IndexedDB (MVP bez serwera)
+Interaktywne MVP z trybem hybrydowym:
 
-## Uruchomienie (po zainicjowaniu projektu w Etapie 1)
+- bez konta dane są zapisywane lokalnie w przeglądarce,
+- po zalogowaniu dane są przechowywane w Supabase,
+- lokalny portfel jest automatycznie kopiowany do całkowicie pustego konta chmurowego.
+
+## Stack
+
+- Next.js 14, React i TypeScript
+- Tailwind CSS i Recharts
+- Supabase Auth oraz Postgres z Row Level Security
+- Vitest
+
+## Uruchomienie
+
 ```bash
 npm install
 npm run dev
 ```
-Aplikacja pod http://localhost:3000
 
-## Dokumentacja
-- `context.txt` — pełny kontekst i decyzje projektu
-- `CLAUDE.md` — instrukcje dla Claude Code
-- Plan krok po kroku: strona "finly" w Notion
+Aplikacja działa pod `http://localhost:3000`. Tryb lokalny nie wymaga konfiguracji Supabase.
+
+Aby włączyć konta i chmurę:
+
+1. Skopiuj `.env.example` do `.env.local` i uzupełnij publiczny URL oraz anon key projektu.
+2. Uruchom `supabase/schema.sql` w Supabase SQL Editor.
+3. Zrestartuj serwer deweloperski.
+
+## Weryfikacja
+
+```bash
+npm test
+npm run lint
+npm run build
+```
+
+Pełny kontekst i historia decyzji znajdują się w `context.txt`.
