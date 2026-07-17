@@ -11,15 +11,22 @@ import {
 } from "recharts";
 import { useFinly } from "@/lib/store";
 import { formatPLN } from "@/lib/utils";
+import type { TransactionType } from "@/lib/types";
 
 const DAYS = 30;
 
-export function ExpenseChart() {
+// Kolor podąża za typem w całej aplikacji: dochody emerald, wydatki rose.
+const LINE_COLOR: Record<TransactionType, string> = {
+  income: "#10b981",
+  expense: "#f43f5e",
+};
+
+export function TransactionChart({ type }: { type: TransactionType }) {
   const { transactions } = useFinly();
 
   const byDate = new Map<string, number>();
   for (const t of transactions) {
-    if (t.type === "expense") {
+    if (t.type === type) {
       byDate.set(t.date, (byDate.get(t.date) ?? 0) + t.amount);
     }
   }
@@ -35,14 +42,17 @@ export function ExpenseChart() {
     });
   }
 
+  const color = LINE_COLOR[type];
+  const gradientId = `fill-${type}`;
+
   return (
     <div className="h-40">
       <ResponsiveContainer width="100%" height="100%">
         <AreaChart data={data} margin={{ top: 8, right: 4, left: 4, bottom: 0 }}>
           <defs>
-            <linearGradient id="expenseFill" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="#10b981" stopOpacity={0.25} />
-              <stop offset="100%" stopColor="#10b981" stopOpacity={0} />
+            <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor={color} stopOpacity={0.25} />
+              <stop offset="100%" stopColor={color} stopOpacity={0} />
             </linearGradient>
           </defs>
           <CartesianGrid
@@ -69,14 +79,14 @@ export function ExpenseChart() {
           <Area
             type="monotone"
             dataKey="amount"
-            stroke="#10b981"
+            stroke={color}
             strokeWidth={2}
-            fill="url(#expenseFill)"
+            fill={`url(#${gradientId})`}
             activeDot={{
               r: 4,
               stroke: "#0c3529",
               strokeWidth: 2,
-              fill: "#10b981",
+              fill: color,
             }}
           />
         </AreaChart>

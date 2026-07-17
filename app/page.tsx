@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import {
   ArrowDownRight,
   ArrowUpRight,
@@ -7,10 +8,11 @@ import {
   TrendingUp,
 } from "lucide-react";
 import { Studs } from "@/components/Studs";
-import { ExpenseChart } from "@/components/ExpenseChart";
-import { ExpenseDashboard } from "@/components/ExpenseDashboard";
+import { TransactionChart } from "@/components/TransactionChart";
+import { CategoryDashboard } from "@/components/CategoryDashboard";
 import { useFinly } from "@/lib/store";
 import { cn, formatPLN } from "@/lib/utils";
+import type { TransactionType } from "@/lib/types";
 
 function monthKey(offset: number) {
   const d = new Date();
@@ -21,6 +23,7 @@ function monthKey(offset: number) {
 
 export default function DashboardPage() {
   const { transactions } = useFinly();
+  const [view, setView] = useState<TransactionType>("expense");
 
   const sumFor = (type: "income" | "expense", month?: string) =>
     transactions
@@ -63,20 +66,62 @@ export default function DashboardPage() {
         />
       </div>
 
+      <div className="grid grid-cols-2 gap-2">
+        <ViewButton
+          label="Wydatki"
+          active={view === "expense"}
+          activeClass="border-ink bg-rose-400 text-white shadow-brick-sm"
+          onClick={() => setView("expense")}
+        />
+        <ViewButton
+          label="Dochody"
+          active={view === "income"}
+          activeClass="border-ink bg-brand text-white shadow-brick-sm"
+          onClick={() => setView("income")}
+        />
+      </div>
+
       <section className="brick p-4">
         <div className="flex items-baseline justify-between">
-          <h2 className="font-display text-xl font-bold">Wydatki</h2>
+          <h2 className="font-display text-xl font-bold">
+            {view === "expense" ? "Wydatki" : "Dochody"}
+          </h2>
           <span className="text-xs font-semibold text-ink/40">
             ostatnie 30 dni
           </span>
         </div>
         <div className="mt-2">
-          <ExpenseChart />
+          <TransactionChart type={view} />
         </div>
       </section>
 
-      <ExpenseDashboard />
+      <CategoryDashboard type={view} />
     </div>
+  );
+}
+
+function ViewButton({
+  label,
+  active,
+  activeClass,
+  onClick,
+}: {
+  label: string;
+  active: boolean;
+  activeClass: string;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={cn(
+        "rounded-2xl border-2 py-2.5 font-display text-sm font-bold transition-all",
+        active ? activeClass : "border-ink/20 bg-white text-ink/40"
+      )}
+    >
+      {label}
+    </button>
   );
 }
 

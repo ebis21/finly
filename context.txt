@@ -256,3 +256,10 @@ Category (kategoria):
   przycisk konta z modalem "Grasz lokalnie" i nieaktywnym "Zaloguj
   się (wkrótce)". Logo wygenerowane przez Higgsfield (nano banana):
   zielony klocek 2x2 z żółtą monetą, public/logo.png, użyte w Header.
+[2026-07-17] Przełącznik dashboardów (Claude Code). Na pulpicie
+  segmentowany przełącznik Wydatki/Dochody — przestawia jednocześnie
+  wykres 30 dni i podział na kategorie ("Na co wydaję" / "Skąd mam
+  pieniądze"). ExpenseChart i ExpenseDashboard uogólnione do
+  TransactionChart i CategoryDashboard (prop type). Kolor podąża za
+  typem w całej aplikacji: dochody emerald, wydatki rose (linia
+  wykresu, paski kategorii, kwoty, aktywny przycisk przełącznika).
