@@ -6,6 +6,7 @@ import { BottomNav } from "@/components/BottomNav";
 import { AddTransactionSheet } from "@/components/AddTransactionSheet";
 import { FinlyProvider } from "@/lib/store";
 import { AuthProvider } from "@/lib/auth";
+import { AppEntry } from "@/components/AppEntry";
 
 const baloo = Baloo_2({
   subsets: ["latin", "latin-ext"],
@@ -32,14 +33,16 @@ export default function RootLayout({
     <html lang="pl" className={`${baloo.variable} ${nunito.variable}`}>
       <body className="bg-mint font-sans text-ink antialiased">
         <AuthProvider>
-          <FinlyProvider>
-            <div className="relative mx-auto flex min-h-screen w-full max-w-md flex-col border-x-2 border-ink bg-paper">
-              <Header />
-              <main className="flex-1 px-4 pb-28 pt-2">{children}</main>
-              <BottomNav />
-              <AddTransactionSheet />
-            </div>
-          </FinlyProvider>
+          <AppEntry>
+            <FinlyProvider>
+              <div className="relative mx-auto flex min-h-screen w-full max-w-md flex-col border-x-2 border-ink bg-paper">
+                <Header />
+                <main className="flex-1 px-4 pb-28 pt-2">{children}</main>
+                <BottomNav />
+                <AddTransactionSheet />
+              </div>
+            </FinlyProvider>
+          </AppEntry>
         </AuthProvider>
       </body>
     </html>

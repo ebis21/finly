@@ -13,6 +13,7 @@ import {
   updateCloudGoal,
 } from "@/lib/cloud-store";
 import { shouldImportLocalData } from "@/lib/hybrid-data";
+import { createEmptyData } from "@/lib/empty-data";
 import { localDataStore } from "@/lib/storage";
 import { requireSupabase } from "@/lib/supabase";
 import type { Asset, FinlyData, Goal, Transaction } from "@/lib/types";
@@ -35,36 +36,6 @@ interface FinlyContextValue extends FinlyData {
   setAddOpen: (open: boolean) => void;
 }
 
-function daysAgo(days: number) {
-  const date = new Date();
-  date.setDate(date.getDate() - days);
-  return date.toISOString().slice(0, 10);
-}
-
-function seedData(): FinlyData {
-  return {
-    transactions: [
-      { id: "t1", type: "income", amount: 3500, date: daysAgo(9), category: "Wypłata", title: "Wypłata z pracy", note: "Stała miesięczna pensja." },
-      { id: "t2", type: "expense", amount: 120, date: daysAgo(4), category: "Prezenty", title: "Prezent dla mamy", note: "Urodziny mamy — kwiaty i książka 🎁" },
-      { id: "t3", type: "income", amount: 100, date: daysAgo(2), category: "Sprzedaż", title: "Sprzedaż lemoniady" },
-      { id: "t4", type: "expense", amount: 85.5, date: daysAgo(1), category: "Jedzenie", title: "Zakupy spożywcze" },
-      { id: "t5", type: "income", amount: 3400, date: daysAgo(39), category: "Wypłata", title: "Wypłata z pracy" },
-      { id: "t6", type: "expense", amount: 310, date: daysAgo(36), category: "Jedzenie", title: "Zakupy na cały tydzień" },
-      { id: "t7", type: "expense", amount: 150, date: daysAgo(33), category: "Rozrywka", title: "Kino z rodziną" },
-      { id: "t8", type: "expense", amount: 90, date: daysAgo(31), category: "Transport", title: "Bilet miesięczny" },
-    ],
-    goals: [
-      { id: "g1", name: "iPad", target: 3500, saved: 1200 },
-      { id: "g2", name: "Wakacje nad morzem", target: 2000, saved: 450 },
-    ],
-    assets: [
-      { id: "a1", name: "Gotówka w portfelu", type: "Gotówka", value: 250, updatedAt: daysAgo(0) },
-      { id: "a2", name: "Konto oszczędnościowe", type: "Oszczędności", value: 4150, updatedAt: daysAgo(3) },
-      { id: "a3", name: "Rower", type: "Sprzęt", value: 800, updatedAt: daysAgo(30) },
-    ],
-  };
-}
-
 function errorMessage() {
   return "Nie udało się zapisać danych. Sprawdź połączenie i spróbuj ponownie.";
 }
@@ -73,7 +44,7 @@ const FinlyContext = createContext<FinlyContextValue | null>(null);
 
 export function FinlyProvider({ children }: { children: React.ReactNode }) {
   const { user, loading: authLoading } = useAuth();
-  const [data, setData] = useState<FinlyData>(seedData);
+  const [data, setData] = useState<FinlyData>(createEmptyData);
   const dataRef = useRef(data);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -91,7 +62,7 @@ export function FinlyProvider({ children }: { children: React.ReactNode }) {
 
     void (async () => {
       try {
-        const local = (await localDataStore.load()) ?? seedData();
+        const local = (await localDataStore.load()) ?? createEmptyData();
         if (!user) {
           if (active) setData(local);
           return;
@@ -184,7 +155,7 @@ export function FinlyProvider({ children }: { children: React.ReactNode }) {
         const created = await createCloudAsset(requireSupabase(), user.id, asset);
         setData((current) => ({ ...current, assets: [...current.assets, created] }));
       } else {
-        await saveLocal({ ...dataRef.current, assets: [...dataRef.current.assets, { ...asset, id: crypto.randomUUID(), updatedAt: daysAgo(0) }] });
+        await saveLocal({ ...dataRef.current, assets: [...dataRef.current.assets, { ...asset, id: crypto.randomUUID(), updatedAt: new Date().toISOString().slice(0, 10) }] });
       }
     }),
     removeAsset: (id) => perform(async () => {
