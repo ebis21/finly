@@ -1,22 +1,35 @@
 "use client";
 
-import { TrendingDown, TrendingUp } from "lucide-react";
+import {
+  ArrowDownRight,
+  ArrowUpRight,
+  TrendingDown,
+  TrendingUp,
+} from "lucide-react";
 import { Studs } from "@/components/Studs";
+import { ExpenseChart } from "@/components/ExpenseChart";
 import { ExpenseDashboard } from "@/components/ExpenseDashboard";
 import { useFinly } from "@/lib/store";
-import { formatPLN } from "@/lib/utils";
+import { cn, formatPLN } from "@/lib/utils";
+
+function monthKey(offset: number) {
+  const d = new Date();
+  d.setDate(1);
+  d.setMonth(d.getMonth() + offset);
+  return d.toISOString().slice(0, 7);
+}
 
 export default function DashboardPage() {
   const { transactions } = useFinly();
 
-  const sum = (type: "income" | "expense", monthOnly = false) => {
-    const month = new Date().toISOString().slice(0, 7);
-    return transactions
-      .filter((t) => t.type === type && (!monthOnly || t.date.startsWith(month)))
+  const sumFor = (type: "income" | "expense", month?: string) =>
+    transactions
+      .filter((t) => t.type === type && (!month || t.date.startsWith(month)))
       .reduce((acc, t) => acc + t.amount, 0);
-  };
 
-  const balance = sum("income") - sum("expense");
+  const balance = sumFor("income") - sumFor("expense");
+  const thisMonth = monthKey(0);
+  const prevMonth = monthKey(-1);
 
   return (
     <div className="flex flex-col gap-4">
@@ -29,29 +42,111 @@ export default function DashboardPage() {
       </section>
 
       <div className="grid grid-cols-2 gap-4">
-        <section className="brick p-4">
-          <div className="flex items-center gap-1.5 text-sm font-bold text-ink/60">
-            <TrendingUp className="h-4 w-4 text-brand-dark" />
-            Wpłynęło
-          </div>
-          <p className="mt-1 font-display text-2xl font-bold text-brand-dark">
-            +{formatPLN(sum("income", true))}
-          </p>
-          <p className="text-xs font-semibold text-ink/40">w tym miesiącu</p>
-        </section>
-        <section className="brick p-4">
-          <div className="flex items-center gap-1.5 text-sm font-bold text-ink/60">
-            <TrendingDown className="h-4 w-4 text-rose-500" />
-            Wydałem
-          </div>
-          <p className="mt-1 font-display text-2xl font-bold text-rose-500">
-            {formatPLN(sum("expense", true))}
-          </p>
-          <p className="text-xs font-semibold text-ink/40">w tym miesiącu</p>
-        </section>
+        <StatTile
+          label="Wpłynęło"
+          icon={<TrendingUp className="h-4 w-4 text-brand-dark" />}
+          amount={sumFor("income", thisMonth)}
+          amountClass="text-brand-dark"
+          prefix="+"
+          current={sumFor("income", thisMonth)}
+          previous={sumFor("income", prevMonth)}
+          goodWhenUp
+        />
+        <StatTile
+          label="Wydałem"
+          icon={<TrendingDown className="h-4 w-4 text-rose-500" />}
+          amount={sumFor("expense", thisMonth)}
+          amountClass="text-rose-500"
+          current={sumFor("expense", thisMonth)}
+          previous={sumFor("expense", prevMonth)}
+          goodWhenUp={false}
+        />
       </div>
+
+      <section className="brick p-4">
+        <div className="flex items-baseline justify-between">
+          <h2 className="font-display text-xl font-bold">Wydatki</h2>
+          <span className="text-xs font-semibold text-ink/40">
+            ostatnie 30 dni
+          </span>
+        </div>
+        <div className="mt-2">
+          <ExpenseChart />
+        </div>
+      </section>
 
       <ExpenseDashboard />
     </div>
+  );
+}
+
+function StatTile({
+  label,
+  icon,
+  amount,
+  amountClass,
+  prefix = "",
+  current,
+  previous,
+  goodWhenUp,
+}: {
+  label: string;
+  icon: React.ReactNode;
+  amount: number;
+  amountClass: string;
+  prefix?: string;
+  current: number;
+  previous: number;
+  goodWhenUp: boolean;
+}) {
+  return (
+    <section className="brick p-4">
+      <div className="flex items-center gap-1.5 text-sm font-bold text-ink/60">
+        {icon}
+        {label}
+      </div>
+      <p className={cn("mt-1 font-display text-2xl font-bold", amountClass)}>
+        {prefix}
+        {formatPLN(amount)}
+      </p>
+      <div className="mt-1 flex items-center gap-1.5">
+        <DeltaPill current={current} previous={previous} goodWhenUp={goodWhenUp} />
+        <span className="text-xs font-semibold text-ink/40">
+          vs poprzedni miesiąc
+        </span>
+      </div>
+    </section>
+  );
+}
+
+function DeltaPill({
+  current,
+  previous,
+  goodWhenUp,
+}: {
+  current: number;
+  previous: number;
+  goodWhenUp: boolean;
+}) {
+  if (previous <= 0) {
+    return <span className="text-xs font-bold text-ink/40">—</span>;
+  }
+  const pct = Math.round(((current - previous) / previous) * 100);
+  const up = pct >= 0;
+  const good = up === goodWhenUp;
+  return (
+    <span
+      className={cn(
+        "inline-flex items-center gap-0.5 rounded-full border-2 border-ink px-1.5 py-px text-[10px] font-bold",
+        good ? "bg-brand-light text-brand-dark" : "bg-rose-100 text-rose-500"
+      )}
+    >
+      {up ? (
+        <ArrowUpRight className="h-3 w-3" />
+      ) : (
+        <ArrowDownRight className="h-3 w-3" />
+      )}
+      {Math.abs(pct)}%
+    </span>
   );
 }

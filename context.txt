@@ -240,3 +240,19 @@ Category (kategoria):
   notatka, kwota) z możliwością usunięcia pojedynczego wydatku.
   Dane transakcji w store bez zmian (saldo i kafelki miesiąca
   nadal liczone z pełnej listy).
+[2026-07-17] Dashboard w stylu Stripe/Shopify + fundament pod konta
+  + logo (Claude Code). Pulpit: kafelki Wpłynęło/Wydałem mają teraz
+  delty % vs poprzedni miesiąc (pigułki ze strzałką, zielone=dobrze,
+  różowe=gorzej), nowy wykres wydatków z 30 dni (Recharts, cienka
+  szmaragdowa linia z gradientem, tooltip, oszczędne osie —
+  components/ExpenseChart.tsx; recharts dodany do dependencies),
+  paski kategorii ujednolicone do koloru marki. Dane demo rozszerzone
+  o poprzedni miesiąc (t5-t8), żeby delty i wykres miały co pokazywać
+  (widoczne po wyczyszczeniu klucza finly-data-v1). Fundament pod
+  bazę/logowanie: lib/storage.ts (interfejs DataStore + adapter
+  localStorage; docelowo drugi adapter Supabase), lib/auth.tsx
+  (AuthProvider/useAuth — zaślepka, user=null), typy FinlyData i User
+  w lib/types.ts, .env.example z placeholderami Supabase. W nagłówku
+  przycisk konta z modalem "Grasz lokalnie" i nieaktywnym "Zaloguj
+  się (wkrótce)". Logo wygenerowane przez Higgsfield (nano banana):
+  zielony klocek 2x2 z żółtą monetą, public/logo.png, użyte w Header.

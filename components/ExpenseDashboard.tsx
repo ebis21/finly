@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Trash2 } from "lucide-react";
 import { Modal } from "@/components/Modal";
 import { useFinly } from "@/lib/store";
-import { cn, formatDate, formatPLN } from "@/lib/utils";
+import { formatDate, formatPLN } from "@/lib/utils";
 
 const CATEGORY_EMOJI: Record<string, string> = {
   Jedzenie: "🍎",
@@ -15,14 +15,6 @@ const CATEGORY_EMOJI: Record<string, string> = {
   Rachunki: "📄",
 };
 
-const BAR_COLORS = [
-  "bg-sun",
-  "bg-sky-400",
-  "bg-rose-400",
-  "bg-violet-400",
-  "bg-brand",
-  "bg-orange-400",
-];
 
 export function ExpenseDashboard() {
   const { transactions, removeTransaction } = useFinly();
@@ -66,7 +58,7 @@ export function ExpenseDashboard() {
       </div>
 
       <ul className="flex flex-col gap-2.5">
-        {categories.map(([category, amount], i) => {
+        {categories.map(([category, amount]) => {
           const share = Math.round((amount / total) * 100);
           return (
             <li key={category}>
@@ -87,10 +79,7 @@ export function ExpenseDashboard() {
                   </span>
                   <span className="mt-1.5 block h-3 overflow-hidden rounded-full border-2 border-ink bg-white">
                     <span
-                      className={cn(
-                        "block h-full",
-                        BAR_COLORS[i % BAR_COLORS.length]
-                      )}
+                      className="block h-full bg-brand"
                       style={{ width: `${Math.max(8, (amount / max) * 100)}%` }}
                     />
                   </span>

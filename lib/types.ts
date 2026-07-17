@@ -17,6 +17,19 @@ export interface Goal {
   saved: number;
 }
 
+export interface FinlyData {
+  transactions: Transaction[];
+  goals: Goal[];
+  assets: Asset[];
+}
+
+// Pod przyszłe logowanie (etap kont + chmura).
+export interface User {
+  id: string;
+  name: string;
+  email: string;
+}
+
 export interface Asset {
   id: string;
   name: string;

@@ -7,13 +7,8 @@ import {
   useRef,
   useState,
 } from "react";
-import type { Asset, Goal, Transaction } from "@/lib/types";
-
-interface FinlyData {
-  transactions: Transaction[];
-  goals: Goal[];
-  assets: Asset[];
-}
+import type { Asset, FinlyData, Goal, Transaction } from "@/lib/types";
+import { localDataStore } from "@/lib/storage";
 
 interface FinlyContextValue extends FinlyData {
   addTransaction: (t: Omit<Transaction, "id">) => void;
@@ -27,8 +22,6 @@ interface FinlyContextValue extends FinlyData {
   addOpen: boolean;
   setAddOpen: (open: boolean) => void;
 }
-
-const STORAGE_KEY = "finly-data-v1";
 
 function daysAgo(days: number) {
   const d = new Date();
@@ -74,6 +67,40 @@ function seedData(): FinlyData {
         category: "Jedzenie",
         title: "Zakupy spożywcze",
       },
+      // Poprzedni miesiąc — żeby porównania "vs poprzedni miesiąc"
+      // i wykres miały dane od pierwszego uruchomienia.
+      {
+        id: "t5",
+        type: "income",
+        amount: 3400,
+        date: daysAgo(39),
+        category: "Wypłata",
+        title: "Wypłata z pracy",
+      },
+      {
+        id: "t6",
+        type: "expense",
+        amount: 310,
+        date: daysAgo(36),
+        category: "Jedzenie",
+        title: "Zakupy na cały tydzień",
+      },
+      {
+        id: "t7",
+        type: "expense",
+        amount: 150,
+        date: daysAgo(33),
+        category: "Rozrywka",
+        title: "Kino z rodziną",
+      },
+      {
+        id: "t8",
+        type: "expense",
+        amount: 90,
+        date: daysAgo(31),
+        category: "Transport",
+        title: "Bilet miesięczny",
+      },
     ],
     goals: [
       { id: "g1", name: "iPad", target: 3500, saved: 1200 },
@@ -112,20 +139,17 @@ export function FinlyProvider({ children }: { children: React.ReactNode }) {
   const [addOpen, setAddOpen] = useState(false);
   const loaded = useRef(false);
 
-  // localStorage czytamy dopiero po zamontowaniu (SSR go nie ma).
+  // Zapis czytamy dopiero po zamontowaniu (SSR nie ma localStorage).
   useEffect(() => {
-    try {
-      const raw = localStorage.getItem(STORAGE_KEY);
-      if (raw) setData(JSON.parse(raw));
-    } catch {
-      // uszkodzony zapis — zostajemy przy danych demo
-    }
-    loaded.current = true;
+    void localDataStore.load().then((saved) => {
+      if (saved) setData(saved);
+      loaded.current = true;
+    });
   }, []);
 
   useEffect(() => {
     if (loaded.current) {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+      void localDataStore.save(data);
     }
   }, [data]);
 
