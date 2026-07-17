@@ -6,9 +6,12 @@ Prosta aplikacja do ręcznego organizowania dochodów, wydatków, celów oszczę
 
 Interaktywne MVP z trybem hybrydowym:
 
+- pierwsze wejście wymaga zalogowania, utworzenia konta albo świadomego wyboru trybu gościa,
 - bez konta dane są zapisywane lokalnie w przeglądarce,
 - po zalogowaniu dane są przechowywane w Supabase,
 - lokalny portfel jest automatycznie kopiowany do całkowicie pustego konta chmurowego.
+
+Nowy użytkownik zaczyna z pustym portfelem. Wybór trybu gościa jest zapamiętywany na urządzeniu, a istniejące dane lokalne nie są usuwane.
 
 ## Stack
 

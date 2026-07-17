@@ -101,6 +101,10 @@ Kierunek: WEB NAJPIERW, POTEM MOBILE.
 MVP: TRYB HYBRYDOWY — LOKALNIE LUB Z KONTEM.
 - Bez logowania aplikacja nadal działa w pełni lokalnie i zapisuje dane
   w localStorage.
+- Pierwsze wejście pokazuje bramę z logowaniem, rejestracją i świadomym
+  wyborem trybu gościa. Wybór gościa jest zapamiętywany na urządzeniu.
+- Nowy użytkownik lokalny i nowe konto zaczynają z pustym portfelem;
+  dane demonstracyjne nie są już tworzone.
 - Po zalogowaniu dane użytkownika są przechowywane w Supabase i chronione
   przez Row Level Security.
 - Przy pierwszym logowaniu lokalny portfel jest kopiowany do Supabase tylko
@@ -269,3 +273,10 @@ Category (kategoria):
   portfel wyłącznie do całkowicie pustego konta chmurowego; lokalna kopia
   pozostaje bez zmian. Operacje chmurowe sprawdzają błędy przed zmianą UI.
   Dodano Vitest i testy reguł migracji, mapowania, auth oraz adaptera chmury.
+[2026-07-17] Brama wejścia i pusty start. Nowy odwiedzający przed pulpitem
+  wybiera logowanie, rejestrację albo „Kontynuuj bez logowania”. Tryb gościa
+  jest zapamiętywany w localStorage, lecz wylogowanie wraca do bramy.
+  Usunięto automatyczne dane demo: nowa przeglądarka i nowe konto zaczynają
+  z pustymi transakcjami, celami i aktywami. Istniejący lokalny zapis jest
+  zachowany, a rzeczywiste dane gościa nadal migrują wyłącznie do całkowicie
+  pustego konta Supabase.
