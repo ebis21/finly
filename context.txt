@@ -229,3 +229,14 @@ Category (kategoria):
   --font-nunito), obie z latin-ext. Nowe tokeny w tailwind.config:
   kolory ink/paper/mint/sun, cienie brick/brick-sm/brick-lg, fonty
   sans/display. Inter zastąpiony przez Nunito.
+[2026-07-17] Pulpit bez listy transakcji (Claude Code). Feedback:
+  lista transakcji wyglądała "jak bank". Usunięto components/
+  TransactionList.tsx; zamiast niej na pulpicie jest dashboard
+  wydatków (components/ExpenseDashboard.tsx): wszystkie wydatki
+  pogrupowane po kategoriach, kolorowe paski udziału (szerokość
+  względem największej kategorii, podpis = % wszystkich wydatków),
+  suma "razem" w nagłówku. Kliknięcie kategorii otwiera modal ze
+  szczegółami: suma i lista wydatków tej kategorii (tytuł, data,
+  notatka, kwota) z możliwością usunięcia pojedynczego wydatku.
+  Dane transakcji w store bez zmian (saldo i kafelki miesiąca
+  nadal liczone z pełnej listy).

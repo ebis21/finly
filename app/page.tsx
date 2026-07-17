@@ -2,7 +2,7 @@
 
 import { TrendingDown, TrendingUp } from "lucide-react";
 import { Studs } from "@/components/Studs";
-import { TransactionList } from "@/components/TransactionList";
+import { ExpenseDashboard } from "@/components/ExpenseDashboard";
 import { useFinly } from "@/lib/store";
 import { formatPLN } from "@/lib/utils";
 
@@ -51,10 +51,7 @@ export default function DashboardPage() {
         </section>
       </div>
 
-      <section>
-        <h2 className="mb-2 font-display text-xl font-bold">Transakcje</h2>
-        <TransactionList />
-      </section>
+      <ExpenseDashboard />
     </div>
   );
 }
