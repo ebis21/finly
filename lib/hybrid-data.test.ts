@@ -8,7 +8,7 @@ import {
   toGoalInsert,
   toTransactionInsert,
 } from "@/lib/hybrid-data";
-import type { FinlyData } from "@/lib/types";
+import type { Asset, FinlyData } from "@/lib/types";
 
 const empty: FinlyData = { transactions: [], goals: [], assets: [] };
 const local: FinlyData = {
@@ -37,8 +37,10 @@ describe("Supabase row mapping", () => {
 
 describe("Supabase inserts", () => {
   it("maps local domain records and assigns the authenticated user", () => {
+    const newAsset: Omit<Asset, "id" | "updatedAt"> = { name: "Nowe konto", type: "Gotówka", value: 500 };
     expect(toTransactionInsert(local.transactions[0], "user-1")).toMatchObject({ user_id: "user-1", description: "Kawa", amount: 12.5 });
     expect(toGoalInsert(local.goals[0], "user-1")).toEqual({ user_id: "user-1", name: "Rower", target_amount: 4000, saved_amount: 250 });
     expect(toAssetInsert(local.assets[0], "user-1")).toMatchObject({ user_id: "user-1", name: "Konto", value: 1200 });
+    expect(toAssetInsert(newAsset, "user-1")).toMatchObject({ user_id: "user-1", name: "Nowe konto", value: 500 });
   });
 });

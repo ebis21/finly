@@ -89,7 +89,7 @@ export function toGoalInsert(goal: Omit<Goal, "id"> | Goal, userId: string) {
   };
 }
 
-export function toAssetInsert(asset: Omit<Asset, "id"> | Asset, userId: string) {
+export function toAssetInsert(asset: Omit<Asset, "id" | "updatedAt"> | Asset, userId: string) {
   return {
     user_id: userId,
     name: asset.name,
