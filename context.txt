@@ -175,6 +175,9 @@ Category (kategoria):
 - Jak dokładnie ma wyglądać "link do produktu" w celu (sam link,
   czy pobieranie zdjęcia i ceny ze strony)?
 - Nazwa i logo — czy "Finly" zostaje na stałe?
+- Next.js jest przypięty do 14.2.15, dla którego npm zgłasza znane
+  podatności (naprawione w nowszych wydaniach) — do aktualizacji
+  w jednym z kolejnych etapów.
 
 
 ========================================================================
@@ -187,3 +190,14 @@ Category (kategoria):
   mobile), zakres MVP (lokalnie, bez kont), stack (rekomendacja:
   Next.js + Tailwind + shadcn/ui + dane lokalne). Utworzono folder
   Finly na pulpicie i plan krok po kroku w Notion (strona "finly").
+[2026-07-17] Etap 1 — fundament projektu (Claude Code). Utworzono
+  strukturę app/, components/, lib/ na bazie konfiguracji z Etapu 0.
+  Powstały: app/globals.css (Tailwind), app/layout.tsx (lang pl, font
+  Inter z latin-ext, mobile-first kontener max-w-md), components/
+  Header.tsx (logo "F" + Finly), components/BottomNav.tsx (Pulpit,
+  Cele, Aktywa + wyróżniony przycisk "+", ikony lucide-react, na razie
+  bez akcji), app/page.tsx (makieta pulpitu z danymi zerowymi: saldo,
+  Wpłynęło/Wydałem, pusty stan transakcji), lib/utils.ts (helper cn
+  pod shadcn/ui). Kolor przewodni: emerald (brand w tailwind.config).
+  npm install + npm run dev zweryfikowane — aplikacja startuje bez
+  błędów pod http://localhost:3000.
