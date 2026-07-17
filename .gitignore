@@ -1,0 +1,36 @@
+# Zależności
+/node_modules
+/.pnp
+.pnp.js
+
+# Testy
+/coverage
+
+# Next.js
+/.next/
+/out/
+/build
+
+# Produkcja
+/dist
+
+# Różne
+.DS_Store
+*.pem
+Thumbs.db
+
+# Debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Zmienne środowiskowe (sekrety)
+.env
+.env*.local
+
+# Vercel
+.vercel
+
+# TypeScript
+*.tsbuildinfo
+next-env.d.ts

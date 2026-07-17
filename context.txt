@@ -1,0 +1,189 @@
+========================================================================
+FINLY — KONTEKST PROJEKTU
+Plik podporowy dla pracy z Claude Code
+Ostatnia aktualizacja: 2026-07-17
+========================================================================
+
+JAK KORZYSTAĆ Z TEGO PLIKU
+--------------------------
+To jest "źródło prawdy" o aplikacji Finly. Kiedy zaczynasz nową sesję
+z Claude Code, wklej lub wskaż ten plik, żeby AI od razu miało pełny
+kontekst: co budujemy, dla kogo, jak ma działać i jakie są decyzje.
+Aktualizuj go w miarę rozwoju projektu (nowe wątki dopisuj na dole
+w sekcji "DZIENNIK WĄTKÓW").
+
+
+========================================================================
+1. CZYM JEST FINLY (w jednym zdaniu)
+========================================================================
+Finly to prosta, ładna aplikacja do organizowania własnych finansów —
+osobisty "portfel", w którym ręcznie zapisujesz wszystkie swoje dochody,
+wydatki, aktywa i cele oszczędnościowe, i widzisz w jednym miejscu, jak
+rośnie Twój majątek.
+
+WAŻNE: Finly NIE służy do płacenia ani przelewów. To narzędzie do
+ŚLEDZENIA i ORGANIZOWANIA, nie do transakcji. Bezpieczeństwo jest więc
+prostsze — nie ruszamy niczyich pieniędzy.
+
+
+========================================================================
+2. PROBLEM, KTÓRY ROZWIĄZUJEMY
+========================================================================
+Ludzie zarabiają z wielu źródeł, ale nie widzą tego "na jednej kartce":
+- stała wypłata z pracy (miesięczna),
+- nieregularne dochody: premia, wywiad dla firmy, zlecenie, sprzedaż
+  czegoś, napiwek, drobny biznes itd.
+Te dochody są rozproszone i trudno ogarnąć, ile się naprawdę zarabia,
+ile zostaje i jak blisko jesteś do celu (np. na iPada).
+
+Finly zbiera to wszystko w jednym miejscu — jak uproszczona księgowość,
+zrozumiała dla każdego.
+
+
+========================================================================
+3. DLA KOGO (grupa docelowa)
+========================================================================
+Dla KAŻDEGO, kto zarabia — niezależnie od wieku i skali dochodów.
+Aplikacja ma być tak prosta, żeby korzystał z niej zarówno dorosły
+z etatem, jak i nastolatek uczący się finansów.
+
+Persona 1 — "Dorosły z wieloma źródłami dochodu":
+  ma etat + nieregularne zlecenia i premie, chce widzieć realny obraz
+  swoich finansów i odkładać na konkretne cele.
+
+Persona 2 — "Młody uczący się finansów" (np. 12-latek):
+  sprzedaje lemoniadę, zarabia np. 100 zł/tydzień, chce wpisywać
+  dochody i wydatki i uczyć się zarządzania pieniędzmi na małą skalę.
+
+Wniosek dla UX: interfejs musi być banalnie prosty, przyjazny,
+bez żargonu księgowego. "Księgowość dla każdego".
+
+
+========================================================================
+4. FUNKCJE (zakres produktu)
+========================================================================
+FUNKCJE RDZENIOWE (must-have w MVP):
+- Dodawanie DOCHODÓW: kwota, data, kategoria/źródło (np. "wypłata",
+  "premia", "zlecenie", "sprzedaż"), notatka. Dochód może być stały
+  (cykliczny) lub jednorazowy.
+- Dodawanie WYDATKÓW: kwota, data, kategoria, notatka.
+- Widok PODSUMOWANIA (dashboard): saldo, suma dochodów, suma wydatków,
+  ile zostało w danym miesiącu.
+- CELE oszczędnościowe: nazwa celu, kwota docelowa, (opcjonalnie) link
+  do produktu (np. iPad) i zdjęcie, pasek postępu ile już zebrane.
+- AKTYWA: lista rzeczy/wartości, które posiadasz (gotówka, oszczędności,
+  sprzęt, ewentualnie inwestycje), z możliwością ręcznej aktualizacji
+  wartości i podglądem, jak rośnie łączny majątek.
+
+FUNKCJE PÓŹNIEJSZE (nice-to-have, po MVP):
+- Dochody cykliczne dodawane automatycznie (np. co miesiąc wypłata).
+- Wykresy/trendy (majątek w czasie, dochody vs wydatki).
+- Kategorie własne i budżety miesięczne.
+- Eksport danych (CSV).
+- Konta użytkowników i synchronizacja w chmurze (patrz sekcja 6).
+- Wersja mobilna (patrz sekcja 5).
+
+
+========================================================================
+5. PLATFORMA — DECYZJA
+========================================================================
+Kierunek: WEB NAJPIERW, POTEM MOBILE.
+- MVP jako aplikacja webowa (działa w przeglądarce na komputerze
+  i telefonie — responsywna, "mobile-friendly").
+- Po dopracowaniu wersji web przenosimy/rozszerzamy na telefon.
+- Projektujemy UI od razu z myślą o ekranie telefonu (mobile-first),
+  żeby późniejsze przejście na mobile było łatwe.
+
+
+========================================================================
+6. ZAKRES MVP — DECYZJA
+========================================================================
+MVP: TYLKO DLA MNIE, LOKALNIE.
+- Na start bez logowania i kont użytkowników.
+- Dane trzymane lokalnie (w przeglądarce / lokalnej bazie).
+- Cel: jak najszybciej mieć działającą aplikację do przetestowania
+  i nauki, bez komplikacji z serwerem i uwierzytelnianiem.
+- Konta wielu użytkowników + chmura = dopiero kolejny etap, gdy MVP
+  będzie działać i będzie sens udostępniać innym.
+
+
+========================================================================
+7. TECHNOLOGIA — REKOMENDACJA
+========================================================================
+(Dobrana pod prostotę i dobrą współpracę z Claude Code. Do potwierdzenia.)
+
+MVP (web, lokalnie):
+- Frontend: Next.js (React) + TypeScript.
+- Stylowanie: Tailwind CSS (szybko i ładnie, spójny wygląd).
+- Komponenty UI: shadcn/ui (gotowe, estetyczne elementy).
+- Wykresy: Recharts.
+- Dane lokalnie: na start localStorage lub IndexedDB (np. Dexie.js),
+  żeby nie stawiać serwera.
+
+Etap 2 (konta + chmura), gdy będzie potrzebny:
+- Supabase (baza Postgres + logowanie + synchronizacja) — prosty
+  i darmowy na start.
+
+Etap 3 (mobile):
+- React Native / Expo (można współdzielić dużo logiki z web),
+  lub PWA jeśli wystarczy.
+
+Uwaga: to rekomendacja, nie sztywna decyzja. Jeśli zmienimy stack,
+zaktualizuj tę sekcję.
+
+
+========================================================================
+8. ZASADY UX / WYGLĄD
+========================================================================
+- Prostota ponad wszystko: mało kliknięć, żeby dodać dochód/wydatek.
+- Ładny, nowoczesny, czysty wygląd. Przyjazny również dla dziecka.
+- Duże, czytelne liczby (saldo, postęp celu).
+- Szybkie dodawanie: jeden przycisk "+" zawsze pod ręką.
+- Pozytywny ton (motywowanie do oszczędzania, paski postępu, "brawo").
+- Brak żargonu — "ile mam", "ile wpłynęło", "ile wydałem", "ile do celu".
+
+
+========================================================================
+9. MODEL DANYCH (wstępny szkic)
+========================================================================
+Transaction (transakcja):
+  id, typ ("income" | "expense"), kwota, waluta, data,
+  kategoria, źródło/opis, cykliczna? (bool), notatka.
+
+Goal (cel):
+  id, nazwa, kwotaDocelowa, kwotaZebrana, link (opcjonalnie),
+  zdjęcie (opcjonalnie), dataUtworzenia, status.
+
+Asset (aktywo):
+  id, nazwa, typ (gotówka/oszczędności/sprzęt/inwestycja),
+  wartość, dataAktualizacji, notatka.
+
+Category (kategoria):
+  id, nazwa, typ (income/expense), ikona/kolor.
+
+(Do rozbudowy przy implementacji.)
+
+
+========================================================================
+10. OTWARTE PYTANIA / DO USTALENIA
+========================================================================
+- Waluta: tylko PLN na start, czy od razu wielowalutowość?
+- Czy cele mają "podpinać" kwotę z konkretnego aktywa/oszczędności,
+  czy to osobny licznik?
+- Czy aktywa mają się aktualizować ręcznie, czy w przyszłości
+  automatycznie (np. kurs akcji/krypto przez API)?
+- Jak dokładnie ma wyglądać "link do produktu" w celu (sam link,
+  czy pobieranie zdjęcia i ceny ze strony)?
+- Nazwa i logo — czy "Finly" zostaje na stałe?
+
+
+========================================================================
+11. DZIENNIK WĄTKÓW (dopisuj nowe ustalenia tutaj)
+========================================================================
+[2026-07-17] Rozmowa założycielska. Ustalono: koncept aplikacji
+  (osobisty portfel do organizacji finansów, nie do płatności),
+  grupa docelowa (każdy, od dziecka po dorosłego), funkcje rdzeniowe
+  (dochody, wydatki, cele, aktywa), platforma (web najpierw, potem
+  mobile), zakres MVP (lokalnie, bez kont), stack (rekomendacja:
+  Next.js + Tailwind + shadcn/ui + dane lokalne). Utworzono folder
+  Finly na pulpicie i plan krok po kroku w Notion (strona "finly").
