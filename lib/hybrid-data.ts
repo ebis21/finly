@@ -9,6 +9,7 @@ export interface TransactionRow {
   description: string | null;
   note: string | null;
   recurrence?: Recurrence | null;
+  added_by_user_id?: string | null;
 }
 
 export interface GoalRow {
@@ -48,6 +49,7 @@ export function rowToTransaction(row: TransactionRow): Transaction {
     title: row.description ?? "",
     note: row.note ?? undefined,
     recurrence: row.recurrence ?? undefined,
+    addedByUserId: row.added_by_user_id ?? undefined,
   };
 }
 

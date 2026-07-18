@@ -11,6 +11,7 @@ export interface Occurrence {
   title: string;
   note?: string;
   recurrence?: Recurrence;
+  addedByUserId?: string;
 }
 
 function pad(n: number) {
@@ -46,6 +47,7 @@ function toOccurrence(t: Transaction, date: string): Occurrence {
     title: t.title,
     note: t.note,
     recurrence: t.recurrence,
+    addedByUserId: t.addedByUserId,
   };
 }
 

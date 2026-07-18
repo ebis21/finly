@@ -326,3 +326,19 @@ Category (kategoria):
   • #15 wybór kategorii z „klocków” → z powrotem <select> (Zdrowie +
     „➕ Stwórz własną…”). Przy okazji selektor powtarzalności też jako
     <select> (spójność, mniej klikania). Logika cykliczności bez zmian.
+[2026-07-18] Tryb rodzic↔dziecko (nowa funkcja; spec: docs/superpowers/
+  specs/2026-07-18-parent-child-mode-design.md). Dziecko ma własne konto;
+  rodzic łączy się jednorazowym kodem generowanym przez dziecko (ważny 15 min).
+  Uprawnienia rodzica: podgląd całości (odczyt), dorzucanie kieszonkowego,
+  dopłata do celu — bez edycji/kasowania wpisów dziecka. Dopłata do celu =
+  wpływ +kwota ORAZ przeksięgowanie na cel, więc saldo „Mam” dziecka bez
+  zmian, a pasek celu rośnie. UI: osobna zakładka „Dzieci” (/dzieci) u rodzica
+  + sekcja „Rodzice” w modalu konta dziecka; wpisy od rodzica oznaczone
+  „💛 od rodzica”. Technika: RLS + funkcje SECURITY DEFINER (bez Edge
+  Functions). Nowe: tabele family_links, link_codes; kolumna
+  transactions.added_by_user_id; migracja supabase/migrations/
+  2026-07-18-parent-child.sql (konto wymaga uruchomienia; gość nie). Kod:
+  lib/family.ts, lib/finance.ts (wspólne walletTotals, cykliczność-świadome),
+  components/FamilyChildPanel.tsx, components/ChildDetail.tsx,
+  app/dzieci/page.tsx, zmiany w BottomNav (5 kolumn, zakładka Dzieci)
+  i Header. Tryb rodzic↔dziecko wymaga konta (gość dostaje podpowiedź).

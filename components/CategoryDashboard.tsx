@@ -193,6 +193,11 @@ export function CategoryDashboard({
                           ↻ {o.recurrence === "monthly" ? "co mies." : "co rok"}
                         </span>
                       ) : null}
+                      {o.addedByUserId ? (
+                        <span className="ml-1.5 rounded-full border border-ink/20 px-1.5 py-px text-[10px] font-bold text-ink/50">
+                          💛 od rodzica
+                        </span>
+                      ) : null}
                     </span>
                     <span className="block text-xs font-semibold text-ink/40">
                       {formatDate(o.date)}

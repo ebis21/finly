@@ -12,6 +12,7 @@ export interface Transaction {
   title: string;
   note?: string;
   recurrence?: Recurrence; // gdy ustawione: transakcja powtarza się co miesiąc/rok
+  addedByUserId?: string; // gdy różne od właściciela = dodane przez rodzica
 }
 
 export interface Goal {
