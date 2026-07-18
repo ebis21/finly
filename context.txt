@@ -300,3 +300,22 @@ Category (kategoria):
   • #9 Niebieska obwódka: w globals.css warstwa base zdejmuje domyślny
     niebieski outline przeglądarki (:focus) i tap-highlight; dla klawiatury
     zostaje markowy zielony pierścień (:focus-visible, #059669).
+[2026-07-18] Poprawki v2 po feedbacku (issues #6, #7 doprecyzowane).
+  • #6 REALNE transakcje cykliczne (wcześniej błędnie zrobiony przełącznik
+    widoku): nowe pole recurrence ("monthly"/"yearly") na Transaction,
+    selektor „Jednorazowo / Co miesiąc / Co rok" w formularzu. Wystąpienia
+    rozwijane helperem lib/recurrence.ts (occurrencesInRange + addPeriod,
+    z przycięciem dnia do długości miesiąca) — używane w saldzie,
+    oczekujących, wykresie i podziale na kategorie. Testy: lib/recurrence.test.ts.
+    Baza: kolumna transactions.recurrence + migracja supabase/migrations/
+    2026-07-18-add-recurrence.sql (tryb lokalny nie wymaga migracji);
+    mapowanie w hybrid-data (recurrence + is_recurring).
+  • #7 „Oczekujące" przeniesione OBOK „Mam" jako mniejsza, ciemniejsza
+    rubryka (bg-ink/35). Liczy przyszłe przychody − przyszłe wydatki
+    (zaplanowane + cykliczne) od jutra do końca bieżącego roku.
+  • #8 potwierdzone: saldo = zrealizowane dochody − wydatki − odłożone na
+    cele (teraz liczone z wystąpień, więc cykliczne też wchodzą).
+  • #11 kategorie jako widoczne „klocki" do wyboru (zamiast dropdowna),
+    z „Zdrowie" 🩺 i kafelkiem „➕ Własna" (pole na własną nazwę).
+  • Kafle Wpłynęło/Wydałem i wykres liczą teraz wystąpienia (cykliczne
+    widoczne w każdym miesiącu). Usuwanie cyklicznej pozycji kasuje całą serię.

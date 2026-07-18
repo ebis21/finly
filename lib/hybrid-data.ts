@@ -1,4 +1,4 @@
-import type { Asset, FinlyData, Goal, Transaction, TransactionType } from "@/lib/types";
+import type { Asset, FinlyData, Goal, Recurrence, Transaction, TransactionType } from "@/lib/types";
 
 export interface TransactionRow {
   id: string;
@@ -8,6 +8,7 @@ export interface TransactionRow {
   category: string | null;
   description: string | null;
   note: string | null;
+  recurrence?: Recurrence | null;
 }
 
 export interface GoalRow {
@@ -46,6 +47,7 @@ export function rowToTransaction(row: TransactionRow): Transaction {
     category: row.category ?? "Inne",
     title: row.description ?? "",
     note: row.note ?? undefined,
+    recurrence: row.recurrence ?? undefined,
   };
 }
 
@@ -77,6 +79,8 @@ export function toTransactionInsert(transaction: Omit<Transaction, "id"> | Trans
     category: transaction.category,
     description: transaction.title,
     note: transaction.note ?? null,
+    recurrence: transaction.recurrence ?? null,
+    is_recurring: Boolean(transaction.recurrence),
   };
 }
 

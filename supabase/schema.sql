@@ -9,6 +9,7 @@ create table if not exists public.transactions (
   category text,
   description text,
   is_recurring boolean not null default false,
+  recurrence text check (recurrence in ('monthly','yearly')),
   note text,
   created_at timestamptz not null default now()
 );

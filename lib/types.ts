@@ -1,13 +1,17 @@
 export type TransactionType = "income" | "expense";
 
+// Powtarzalność transakcji. Brak = jednorazowa.
+export type Recurrence = "monthly" | "yearly";
+
 export interface Transaction {
   id: string;
   type: TransactionType;
   amount: number;
-  date: string; // ISO: RRRR-MM-DD
+  date: string; // ISO: RRRR-MM-DD — data (dla cyklicznych: data startu)
   category: string;
   title: string;
   note?: string;
+  recurrence?: Recurrence; // gdy ustawione: transakcja powtarza się co miesiąc/rok
 }
 
 export interface Goal {
