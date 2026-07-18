@@ -11,6 +11,7 @@ import {
 } from "recharts";
 import { useFinly } from "@/lib/store";
 import { formatPLN, type Period } from "@/lib/utils";
+import { occurrencesInRange, type Occurrence } from "@/lib/recurrence";
 import type { Transaction, TransactionType } from "@/lib/types";
 
 // Kolor podąża za typem w całej aplikacji: dochody emerald, wydatki rose.
@@ -28,29 +29,35 @@ function pad(n: number) {
   return String(n).padStart(2, "0");
 }
 
+function bucket(occurrences: Occurrence[], slice: number) {
+  const map = new Map<string, number>();
+  for (const o of occurrences) {
+    const key = o.date.slice(0, slice);
+    map.set(key, (map.get(key) ?? 0) + o.amount);
+  }
+  return map;
+}
+
 // Buduje serię wykresu wg okresu: dni bieżącego miesiąca, miesiące roku
-// albo miesiące od pierwszej transakcji (Wszystko).
+// albo miesiące od pierwszej transakcji (Wszystko). Uwzględnia transakcje
+// cykliczne (rozwinięte na poszczególne dni w zakresie).
 function buildSeries(
   transactions: Transaction[],
   type: TransactionType,
   period: Period
 ): Point[] {
-  const items = transactions.filter((t) => t.type === type);
-  const byKey = (slice: number) => {
-    const map = new Map<string, number>();
-    for (const t of items) {
-      const key = t.date.slice(0, slice);
-      map.set(key, (map.get(key) ?? 0) + t.amount);
-    }
-    return map;
-  };
   const now = new Date();
+  const year = now.getFullYear();
 
   if (period === "month") {
-    const map = byKey(10);
-    const year = now.getFullYear();
     const month = now.getMonth();
     const days = new Date(year, month + 1, 0).getDate();
+    const from = `${year}-${pad(month + 1)}-01`;
+    const to = `${year}-${pad(month + 1)}-${pad(days)}`;
+    const occ = occurrencesInRange(transactions, from, to).filter(
+      (o) => o.type === type
+    );
+    const map = bucket(occ, 10);
     const points: Point[] = [];
     for (let d = 1; d <= days; d++) {
       const iso = `${year}-${pad(month + 1)}-${pad(d)}`;
@@ -60,8 +67,12 @@ function buildSeries(
   }
 
   if (period === "year") {
-    const map = byKey(7);
-    const year = now.getFullYear();
+    const occ = occurrencesInRange(
+      transactions,
+      `${year}-01-01`,
+      `${year}-12-31`
+    ).filter((o) => o.type === type);
+    const map = bucket(occ, 7);
     const points: Point[] = [];
     for (let m = 0; m < 12; m++) {
       const key = `${year}-${pad(m + 1)}`;
@@ -74,14 +85,21 @@ function buildSeries(
   }
 
   // "all": miesiące od pierwszej transakcji do teraz.
+  const items = transactions.filter((t) => t.type === type);
   if (items.length === 0) return [];
-  const map = byKey(7);
   const first = items.reduce((min, t) => (t.date < min ? t.date : min), items[0].date);
   const startYear = Number(first.slice(0, 4));
   const startMonth = Number(first.slice(5, 7)) - 1;
+  const lastDay = new Date(year, now.getMonth() + 1, 0).getDate();
+  const occ = occurrencesInRange(
+    transactions,
+    `${first.slice(0, 7)}-01`,
+    `${year}-${pad(now.getMonth() + 1)}-${pad(lastDay)}`
+  ).filter((o) => o.type === type);
+  const map = bucket(occ, 7);
   const points: Point[] = [];
   const cursor = new Date(startYear, startMonth, 1);
-  const end = new Date(now.getFullYear(), now.getMonth(), 1);
+  const end = new Date(year, now.getMonth(), 1);
   while (cursor <= end) {
     const key = `${cursor.getFullYear()}-${pad(cursor.getMonth() + 1)}`;
     const label = cursor.toLocaleDateString("pl-PL", {
