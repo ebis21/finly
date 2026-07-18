@@ -1,0 +1,12 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "ZASTAP_NAZWA_PAKIETU_np_app.finly.twa",
+      "sha256_cert_fingerprints": [
+        "ZASTAP_ODCISKIEM_SHA256_KLUCZA_PODPISUJACEGO"
+      ]
+    }
+  }
+]

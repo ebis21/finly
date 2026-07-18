@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   ArrowDownRight,
   ArrowUpRight,
@@ -45,9 +45,17 @@ const PERIOD_LABELS: Record<Period, string> = {
 };
 
 export default function DashboardPage() {
-  const { transactions, goals } = useFinly();
+  const { transactions, goals, setAddOpen } = useFinly();
   const [view, setView] = useState<TransactionType>("expense");
   const [period, setPeriod] = useState<Period>("month");
+
+  // Skrót PWA „Dodaj transakcję” (/?dodaj=1) otwiera formularz od razu.
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    if (new URLSearchParams(window.location.search).get("dodaj") === "1") {
+      setAddOpen(true);
+    }
+  }, [setAddOpen]);
 
   const today = todayISO();
 
