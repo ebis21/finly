@@ -8,6 +8,7 @@ export interface Transaction {
   category: string;
   title: string;
   note?: string;
+  addedByUserId?: string; // gdy różne od właściciela = dodane przez rodzica
 }
 
 export interface Goal {

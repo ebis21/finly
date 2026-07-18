@@ -11,7 +11,8 @@ import { Studs } from "@/components/Studs";
 import { TransactionChart } from "@/components/TransactionChart";
 import { CategoryDashboard } from "@/components/CategoryDashboard";
 import { useFinly } from "@/lib/store";
-import { cn, formatPLN, todayISO, type Period } from "@/lib/utils";
+import { cn, formatPLN, type Period } from "@/lib/utils";
+import { walletTotals } from "@/lib/finance";
 import type { TransactionType } from "@/lib/types";
 
 function monthKey(offset: number) {
@@ -32,25 +33,12 @@ export default function DashboardPage() {
   const [view, setView] = useState<TransactionType>("expense");
   const [period, setPeriod] = useState<Period>("month");
 
-  const today = todayISO();
-
   const sumFor = (type: "income" | "expense", month?: string) =>
     transactions
       .filter((t) => t.type === type && (!month || t.date.startsWith(month)))
       .reduce((acc, t) => acc + t.amount, 0);
 
-  // Zrealizowane = do dziś włącznie; przyszłe dochody to "Oczekujące".
-  const realizedIncome = transactions
-    .filter((t) => t.type === "income" && t.date <= today)
-    .reduce((acc, t) => acc + t.amount, 0);
-  const realizedExpense = transactions
-    .filter((t) => t.type === "expense" && t.date <= today)
-    .reduce((acc, t) => acc + t.amount, 0);
-  const savedInGoals = goals.reduce((acc, g) => acc + g.saved, 0);
-  const balance = realizedIncome - realizedExpense - savedInGoals;
-  const pending = transactions
-    .filter((t) => t.type === "income" && t.date > today)
-    .reduce((acc, t) => acc + t.amount, 0);
+  const { balance, pending, savedInGoals } = walletTotals(transactions, goals);
 
   const thisMonth = monthKey(0);
   const prevMonth = monthKey(-1);

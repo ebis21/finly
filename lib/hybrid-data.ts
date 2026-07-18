@@ -8,6 +8,7 @@ export interface TransactionRow {
   category: string | null;
   description: string | null;
   note: string | null;
+  added_by_user_id?: string | null;
 }
 
 export interface GoalRow {
@@ -46,6 +47,7 @@ export function rowToTransaction(row: TransactionRow): Transaction {
     category: row.category ?? "Inne",
     title: row.description ?? "",
     note: row.note ?? undefined,
+    addedByUserId: row.added_by_user_id ?? undefined,
   };
 }
 

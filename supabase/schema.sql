@@ -9,8 +9,27 @@ create table if not exists public.transactions (
   category text,
   description text,
   is_recurring boolean not null default false,
+  added_by_user_id uuid references auth.users(id),
   note text,
   created_at timestamptz not null default now()
+);
+
+-- Połączenia rodzic↔dziecko i jednorazowe kody łączenia.
+-- Pełne polityki RLS i funkcje RPC: supabase/migrations/2026-07-18-parent-child.sql
+create table if not exists public.family_links (
+  id uuid primary key default gen_random_uuid(),
+  child_user_id uuid not null references auth.users(id) on delete cascade,
+  parent_user_id uuid not null references auth.users(id) on delete cascade,
+  created_at timestamptz not null default now(),
+  unique (child_user_id, parent_user_id)
+);
+
+create table if not exists public.link_codes (
+  code text primary key,
+  child_user_id uuid not null references auth.users(id) on delete cascade,
+  created_at timestamptz not null default now(),
+  expires_at timestamptz not null,
+  used_at timestamptz
 );
 
 create table if not exists public.goals (

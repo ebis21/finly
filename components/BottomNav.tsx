@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, Plus, Target, Wallet } from "lucide-react";
+import { LayoutDashboard, Plus, Target, Users, Wallet } from "lucide-react";
 import { useFinly } from "@/lib/store";
 import { cn } from "@/lib/utils";
 
@@ -10,6 +10,7 @@ const items = [
   { label: "Pulpit", href: "/", icon: LayoutDashboard },
   { label: "Cele", href: "/cele", icon: Target },
   { label: "Aktywa", href: "/aktywa", icon: Wallet },
+  { label: "Dzieci", href: "/dzieci", icon: Users },
 ];
 
 export function BottomNav() {
@@ -18,7 +19,7 @@ export function BottomNav() {
 
   return (
     <nav className="fixed bottom-0 left-1/2 z-10 w-full max-w-md -translate-x-1/2 border-x-2 border-t-2 border-ink bg-white">
-      <div className="grid grid-cols-4 items-center px-2 pb-2 pt-1">
+      <div className="grid grid-cols-5 items-center px-2 pb-2 pt-1">
         {items.slice(0, 2).map((item) => (
           <NavItem key={item.href} {...item} active={pathname === item.href} />
         ))}
@@ -32,7 +33,9 @@ export function BottomNav() {
             <Plus className="h-7 w-7" strokeWidth={3} />
           </button>
         </div>
-        <NavItem {...items[2]} active={pathname === items[2].href} />
+        {items.slice(2).map((item) => (
+          <NavItem key={item.href} {...item} active={pathname === item.href} />
+        ))}
       </div>
     </nav>
   );
