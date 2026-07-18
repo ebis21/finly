@@ -9,7 +9,7 @@ import {
 import type { Session } from "@supabase/supabase-js";
 import { translateAuthError, validateCredentials } from "@/lib/auth-utils";
 import { isSupabaseConfigured, supabase } from "@/lib/supabase";
-import type { User } from "@/lib/types";
+import type { Role, User } from "@/lib/types";
 
 interface AuthResult {
   // Komunikat błędu po polsku, albo null gdy sukces.
@@ -23,7 +23,7 @@ interface AuthContextValue {
   loading: boolean;
   configured: boolean;
   signIn: (email: string, password: string) => Promise<AuthResult>;
-  signUp: (email: string, password: string) => Promise<AuthResult>;
+  signUp: (email: string, password: string, role?: Role) => Promise<AuthResult>;
   signOut: () => Promise<void>;
 }
 
@@ -32,10 +32,14 @@ const AuthContext = createContext<AuthContextValue | null>(null);
 function toUser(session: Session | null): User | null {
   if (!session?.user) return null;
   const email = session.user.email ?? "";
+  const rawRole = session.user.user_metadata?.role;
+  const role: Role | undefined =
+    rawRole === "parent" || rawRole === "child" ? rawRole : undefined;
   return {
     id: session.user.id,
     email,
     name: email.split("@")[0] || "Ty",
+    role,
   };
 }
 
@@ -77,13 +81,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       });
       return { error: error ? translateAuthError(error.message) : null };
     },
-    async signUp(email, password) {
+    async signUp(email, password, role) {
       if (!supabase) return { error: "Supabase nie jest skonfigurowane." };
       const validationError = validateCredentials(email, password);
       if (validationError) return { error: validationError };
       const { data, error } = await supabase.auth.signUp({
         email: email.trim().toLowerCase(),
         password,
+        ...(role ? { options: { data: { role } } } : {}),
       });
       if (error) return { error: translateAuthError(error.message) };
       // Gdy w Supabase włączone jest potwierdzanie e-mail, sesji jeszcze nie ma.

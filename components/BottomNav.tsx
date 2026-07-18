@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { LayoutDashboard, Plus, Target, Users, Wallet } from "lucide-react";
+import { useAuth } from "@/lib/auth";
 import { useFinly } from "@/lib/store";
 import { cn } from "@/lib/utils";
 
@@ -16,11 +17,25 @@ const items = [
 export function BottomNav() {
   const pathname = usePathname();
   const { setAddOpen } = useFinly();
+  const { user } = useAuth();
+
+  // Konto dziecka nie widzi zakładki „Dzieci”. Rodzic i stare konta/gość — widzą.
+  const navItems = items.filter(
+    (item) => item.href !== "/dzieci" || user?.role !== "child"
+  );
+  const half = Math.ceil(navItems.length / 2);
+  const left = navItems.slice(0, half);
+  const right = navItems.slice(half);
 
   return (
     <nav className="fixed bottom-0 left-1/2 z-10 w-full max-w-md -translate-x-1/2 border-x-2 border-t-2 border-ink bg-white">
-      <div className="grid grid-cols-5 items-center px-2 pb-2 pt-1">
-        {items.slice(0, 2).map((item) => (
+      <div
+        className={cn(
+          "grid items-center px-2 pb-2 pt-1",
+          navItems.length >= 4 ? "grid-cols-5" : "grid-cols-4"
+        )}
+      >
+        {left.map((item) => (
           <NavItem key={item.href} {...item} active={pathname === item.href} />
         ))}
         <div className="flex justify-center">
@@ -33,7 +48,7 @@ export function BottomNav() {
             <Plus className="h-7 w-7" strokeWidth={3} />
           </button>
         </div>
-        {items.slice(2).map((item) => (
+        {right.map((item) => (
           <NavItem key={item.href} {...item} active={pathname === item.href} />
         ))}
       </div>

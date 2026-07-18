@@ -28,11 +28,15 @@ export interface FinlyData {
   assets: Asset[];
 }
 
+// Rola konta wybierana przy rejestracji: rodzic (widzi dzieci) albo dziecko.
+export type Role = "parent" | "child";
+
 // Pod przyszłe logowanie (etap kont + chmura).
 export interface User {
   id: string;
   name: string;
   email: string;
+  role?: Role; // brak = stare konto/gość — pokazujemy pełny interfejs
 }
 
 export interface Asset {

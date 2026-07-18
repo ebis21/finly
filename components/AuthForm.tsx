@@ -2,12 +2,24 @@
 
 import { FormEvent, useState } from "react";
 import { useAuth } from "@/lib/auth";
+import type { Role } from "@/lib/types";
 
 export type AuthMode = "signin" | "signup";
 
-export function AuthForm({ initialMode = "signin", onSuccess }: { initialMode?: AuthMode; onSuccess?: () => void }) {
+export function AuthForm({
+  initialMode = "signin",
+  lockMode,
+  role,
+  onSuccess,
+}: {
+  initialMode?: AuthMode;
+  lockMode?: AuthMode; // gdy ustawione: brak przełącznika, tryb wymuszony
+  role?: Role; // rola przekazywana przy rejestracji (rodzic/dziecko)
+  onSuccess?: () => void;
+}) {
   const { configured, signIn, signUp } = useAuth();
-  const [mode, setMode] = useState<AuthMode>(initialMode);
+  const [modeState, setModeState] = useState<AuthMode>(initialMode);
+  const mode = lockMode ?? modeState;
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -17,7 +29,10 @@ export function AuthForm({ initialMode = "signin", onSuccess }: { initialMode?: 
     event.preventDefault();
     setSubmitting(true);
     setMessage(null);
-    const result = mode === "signin" ? await signIn(email, password) : await signUp(email, password);
+    const result =
+      mode === "signin"
+        ? await signIn(email, password)
+        : await signUp(email, password, role);
     setSubmitting(false);
     if (result.error) return setMessage(result.error);
     if (result.needsConfirmation) {
@@ -33,10 +48,12 @@ export function AuthForm({ initialMode = "signin", onSuccess }: { initialMode?: 
 
   return (
     <form className="flex flex-col gap-4" onSubmit={submit}>
-      <div className="grid grid-cols-2 rounded-xl border-2 border-ink bg-paper p-1">
-        <button type="button" onClick={() => { setMode("signin"); setMessage(null); }} className={`rounded-lg px-3 py-2 text-sm font-bold ${mode === "signin" ? "bg-emerald-400" : ""}`}>Zaloguj się</button>
-        <button type="button" onClick={() => { setMode("signup"); setMessage(null); }} className={`rounded-lg px-3 py-2 text-sm font-bold ${mode === "signup" ? "bg-emerald-400" : ""}`}>Utwórz konto</button>
-      </div>
+      {!lockMode && (
+        <div className="grid grid-cols-2 rounded-xl border-2 border-ink bg-paper p-1">
+          <button type="button" onClick={() => { setModeState("signin"); setMessage(null); }} className={`rounded-lg px-3 py-2 text-sm font-bold ${mode === "signin" ? "bg-emerald-400" : ""}`}>Zaloguj się</button>
+          <button type="button" onClick={() => { setModeState("signup"); setMessage(null); }} className={`rounded-lg px-3 py-2 text-sm font-bold ${mode === "signup" ? "bg-emerald-400" : ""}`}>Utwórz konto</button>
+        </div>
+      )}
       <label className="text-sm font-bold">E-mail<input className="mt-1 w-full rounded-xl border-2 border-ink px-3 py-2 font-semibold" type="email" autoComplete="email" value={email} onChange={(event) => setEmail(event.target.value)} /></label>
       <label className="text-sm font-bold">Hasło<input className="mt-1 w-full rounded-xl border-2 border-ink px-3 py-2 font-semibold" type="password" minLength={6} autoComplete={mode === "signin" ? "current-password" : "new-password"} value={password} onChange={(event) => setPassword(event.target.value)} /></label>
       {message && <p role="status" className="rounded-xl bg-amber-100 p-3 text-sm font-semibold">{message}</p>}
