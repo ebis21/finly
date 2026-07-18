@@ -351,3 +351,14 @@ Category (kategoria):
   roli widzą pełny interfejs (wstecznie zgodne). AuthForm: props lockMode+role;
   BottomNav filtruje zakładki wg roli (grid 4/5 kolumn); /dzieci ma zaporę dla
   konta dziecka. Testy EntryGate zaktualizowane (wybór roli + rola w signUp).
+[2026-07-18] PWA — apka instalowalna i działająca offline. Dodano
+  app/manifest.ts (Next generuje /manifest.webmanifest: nazwa, kolory
+  theme #10b981 / tło mint, display standalone, ikony), ikony wygenerowane
+  z logo 1024px: public/icon-192.png, icon-512.png, icon-maskable-512.png
+  (maskable z ~14% paddingiem na białym tle). Service worker public/sw.js:
+  nawigacje sieć-najpierw (offline → powłoka z cache), zasoby /_next/static
+  cache-najpierw; zapytania do innych domen (Supabase) ignorowane; czyszczenie
+  starych cache przy activate. Rejestracja tylko na produkcji przez
+  components/ServiceWorkerRegister.tsx (nie koliduje z `next dev`/HMR).
+  Metadane w layout: appleWebApp, apple-touch-icon, viewport.themeColor.
+  Tryb gościa (localStorage) działa więc offline; tryb konta wymaga sieci.
