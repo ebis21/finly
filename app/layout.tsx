@@ -1,9 +1,10 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Baloo_2, Nunito } from "next/font/google";
 import "./globals.css";
 import { Header } from "@/components/Header";
 import { BottomNav } from "@/components/BottomNav";
 import { AddTransactionSheet } from "@/components/AddTransactionSheet";
+import { ServiceWorkerRegister } from "@/components/ServiceWorkerRegister";
 import { FinlyProvider } from "@/lib/store";
 import { AuthProvider } from "@/lib/auth";
 import { AppEntry } from "@/components/AppEntry";
@@ -19,9 +20,23 @@ const nunito = Nunito({
 });
 
 export const metadata: Metadata = {
+  applicationName: "Finly",
   title: "Finly — Twój portfel",
   description:
     "Prosta aplikacja do organizowania własnych finansów: dochody, wydatki, cele i aktywa w jednym miejscu.",
+  appleWebApp: {
+    capable: true,
+    title: "Finly",
+    statusBarStyle: "default",
+  },
+  icons: {
+    icon: "/icon-192.png",
+    apple: "/icon-192.png",
+  },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#10b981",
 };
 
 export default function RootLayout({
@@ -32,6 +47,7 @@ export default function RootLayout({
   return (
     <html lang="pl" className={`${baloo.variable} ${nunito.variable}`}>
       <body className="bg-mint font-sans text-ink antialiased">
+        <ServiceWorkerRegister />
         <AuthProvider>
           <AppEntry>
             <FinlyProvider>
