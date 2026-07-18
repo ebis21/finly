@@ -32,7 +32,7 @@ export function Header() {
           {loading ? <p className="py-6 text-center font-semibold text-ink/60">Sprawdzam sesję…</p> : user ? (
             <div className="flex flex-col gap-4">
               <div className="rounded-2xl border-2 border-ink bg-paper p-4 text-center"><p className="font-display text-lg font-bold">{user.name}</p><p className="mt-1 text-sm font-semibold text-ink/50">{user.email}</p><p className="mt-3 text-xs font-semibold text-emerald-700">Dane synchronizują się z Supabase.</p></div>
-              <FamilyChildPanel />
+              {user.role !== "parent" && <FamilyChildPanel />}
               <button type="button" className="btn-primary" disabled={submitting} onClick={logout}>{submitting ? "Wylogowuję…" : "Wyloguj się"}</button>
             </div>
           ) : <AuthForm onSuccess={() => setAccountOpen(false)} />}

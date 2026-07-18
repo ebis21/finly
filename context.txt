@@ -342,3 +342,12 @@ Category (kategoria):
   components/FamilyChildPanel.tsx, components/ChildDetail.tsx,
   app/dzieci/page.tsx, zmiany w BottomNav (5 kolumn, zakładka Dzieci)
   i Header. Tryb rodzic↔dziecko wymaga konta (gość dostaje podpowiedź).
+[2026-07-18] Wybór roli na wejściu (rodzic/dziecko). Ekran EntryGate zaczyna
+  się od wyboru „Jestem dzieckiem” / „Jestem rodzicem” (z wyjaśnieniem), plus
+  „Mam już konto — zaloguj się” i tryb gościa. Rola zapisywana przy rejestracji
+  w user_metadata.role (Supabase), czytana do User.role w auth.tsx. UI wg roli:
+  dziecko NIE widzi zakładki „Dzieci” (za to ma panel „Rodzice/pokaż kod”
+  w koncie); rodzic widzi „Dzieci”, bez panelu „Rodzice”. Stare konta/gość bez
+  roli widzą pełny interfejs (wstecznie zgodne). AuthForm: props lockMode+role;
+  BottomNav filtruje zakładki wg roli (grid 4/5 kolumn); /dzieci ma zaporę dla
+  konta dziecka. Testy EntryGate zaktualizowane (wybór roli + rola w signUp).

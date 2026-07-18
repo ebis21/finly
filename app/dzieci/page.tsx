@@ -65,6 +65,20 @@ export default function ChildrenPage() {
     );
   }
 
+  if (user?.role === "child") {
+    return (
+      <div className="flex flex-col gap-4">
+        <h1 className="font-display text-3xl font-bold">Dzieci</h1>
+        <div className="brick p-8 text-center">
+          <p className="text-sm font-semibold text-ink/60">
+            Ta sekcja jest dla rodziców. Masz konto dziecka — swojego rodzica
+            połączysz w „Twoje konto → Rodzice” (ikona konta u góry).
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-col gap-4">
       <h1 className="font-display text-3xl font-bold">Dzieci</h1>
