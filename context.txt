@@ -362,3 +362,13 @@ Category (kategoria):
   components/ServiceWorkerRegister.tsx (nie koliduje z `next dev`/HMR).
   Metadane w layout: appleWebApp, apple-touch-icon, viewport.themeColor.
   Tryb gościa (localStorage) działa więc offline; tryb konta wymaga sieci.
+[2026-07-18] Przygotowanie pod sklepy (Google Play / App Store). Manifest
+  rozbudowany: id, categories (finance…), shortcuts (Dodaj/Cele/Aktywa).
+  Skrót „Dodaj” (/?dodaj=1) otwiera formularz — obsłużone w app/page.tsx.
+  Szablon Digital Asset Links public/.well-known/assetlinks.json (do
+  uzupełnienia nazwą pakietu + odciskiem SHA-256 klucza). Przewodnik
+  docs/store-submission.md: Google Play przez TWA (PWABuilder/Bubblewrap +
+  assetlinks), App Store przez PWABuilder+Xcode (ryzyko wytycznej 4.2),
+  wymagana polityka prywatności i zrzuty ekranu, własna domena. Samo wysłanie
+  wymaga kont deweloperskich (Play 25 USD jednorazowo, Apple 99 USD/rok)
+  i Maca do iOS — poza zakresem repo.
