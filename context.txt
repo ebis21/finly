@@ -280,3 +280,23 @@ Category (kategoria):
   z pustymi transakcjami, celami i aktywami. Istniejący lokalny zapis jest
   zachowany, a rzeczywiste dane gościa nadal migrują wyłącznie do całkowicie
   pustego konta Supabase.
+[2026-07-18] Poprawki z komentarzy Vercel/GitHub (issues #6–#11, Claude Code).
+  Bez zmian w schemacie bazy — wszystko liczone po stronie klienta.
+  • #8 Cele a saldo: „Mam” = zrealizowane dochody − wydatki − suma wpłat na
+    cele (savedInGoals). Wpłata na cel realnie pomniejsza wolne środki;
+    pod kwotą salda pigułka „🎯 na cele X”. Usunięcie/zmniejszenie celu
+    przywraca środki (cele zostają osobną listą, nie tworzą wydatków).
+  • #7 + #10 Oczekujące i daty z wyprzedzeniem: dochód z datą > dziś liczy
+    się jako „Oczekujące” (druga, ciemna pigułka na kaflu salda) i wchodzi
+    do „Mam” automatycznie, gdy nadejdzie jego data (porównanie ISO dat).
+    Formularz pokazuje podpowiedź przy przyszłej dacie dochodu.
+  • #6 Okres: przełącznik Miesiąc/Rok/Wszystko pod Wydatki/Dochody; filtruje
+    wykres i podział na kategorie. Helpery todayISO/matchesPeriod/Period
+    w lib/utils.ts; TransactionChart buduje serie dzienne (miesiąc),
+    miesięczne (rok) lub od pierwszej transakcji (wszystko).
+  • #11 Kategorie: dodano „Zdrowie” 🩺 do wydatków oraz opcję „➕ Stwórz
+    własną…” (pole tekstowe). Własne kategorie są pamiętane, bo lista
+    rozwijana łączy wbudowane z już użytymi w transakcjach danego typu.
+  • #9 Niebieska obwódka: w globals.css warstwa base zdejmuje domyślny
+    niebieski outline przeglądarki (:focus) i tap-highlight; dla klawiatury
+    zostaje markowy zielony pierścień (:focus-visible, #059669).

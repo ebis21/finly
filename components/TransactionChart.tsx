@@ -10,10 +10,8 @@ import {
   YAxis,
 } from "recharts";
 import { useFinly } from "@/lib/store";
-import { formatPLN } from "@/lib/utils";
-import type { TransactionType } from "@/lib/types";
-
-const DAYS = 30;
+import { formatPLN, type Period } from "@/lib/utils";
+import type { Transaction, TransactionType } from "@/lib/types";
 
 // Kolor podąża za typem w całej aplikacji: dochody emerald, wydatki rose.
 const LINE_COLOR: Record<TransactionType, string> = {
@@ -21,26 +19,93 @@ const LINE_COLOR: Record<TransactionType, string> = {
   expense: "#f43f5e",
 };
 
-export function TransactionChart({ type }: { type: TransactionType }) {
+interface Point {
+  label: string;
+  amount: number;
+}
+
+function pad(n: number) {
+  return String(n).padStart(2, "0");
+}
+
+// Buduje serię wykresu wg okresu: dni bieżącego miesiąca, miesiące roku
+// albo miesiące od pierwszej transakcji (Wszystko).
+function buildSeries(
+  transactions: Transaction[],
+  type: TransactionType,
+  period: Period
+): Point[] {
+  const items = transactions.filter((t) => t.type === type);
+  const byKey = (slice: number) => {
+    const map = new Map<string, number>();
+    for (const t of items) {
+      const key = t.date.slice(0, slice);
+      map.set(key, (map.get(key) ?? 0) + t.amount);
+    }
+    return map;
+  };
+  const now = new Date();
+
+  if (period === "month") {
+    const map = byKey(10);
+    const year = now.getFullYear();
+    const month = now.getMonth();
+    const days = new Date(year, month + 1, 0).getDate();
+    const points: Point[] = [];
+    for (let d = 1; d <= days; d++) {
+      const iso = `${year}-${pad(month + 1)}-${pad(d)}`;
+      points.push({ label: String(d), amount: map.get(iso) ?? 0 });
+    }
+    return points;
+  }
+
+  if (period === "year") {
+    const map = byKey(7);
+    const year = now.getFullYear();
+    const points: Point[] = [];
+    for (let m = 0; m < 12; m++) {
+      const key = `${year}-${pad(m + 1)}`;
+      const label = new Date(year, m, 1).toLocaleDateString("pl-PL", {
+        month: "short",
+      });
+      points.push({ label, amount: map.get(key) ?? 0 });
+    }
+    return points;
+  }
+
+  // "all": miesiące od pierwszej transakcji do teraz.
+  if (items.length === 0) return [];
+  const map = byKey(7);
+  const first = items.reduce((min, t) => (t.date < min ? t.date : min), items[0].date);
+  const startYear = Number(first.slice(0, 4));
+  const startMonth = Number(first.slice(5, 7)) - 1;
+  const points: Point[] = [];
+  const cursor = new Date(startYear, startMonth, 1);
+  const end = new Date(now.getFullYear(), now.getMonth(), 1);
+  while (cursor <= end) {
+    const key = `${cursor.getFullYear()}-${pad(cursor.getMonth() + 1)}`;
+    const label = cursor.toLocaleDateString("pl-PL", {
+      month: "short",
+      year: "2-digit",
+    });
+    points.push({ label, amount: map.get(key) ?? 0 });
+    cursor.setMonth(cursor.getMonth() + 1);
+  }
+  return points;
+}
+
+export function TransactionChart({
+  type,
+  period,
+}: {
+  type: TransactionType;
+  period: Period;
+}) {
   const { transactions } = useFinly();
 
-  const byDate = new Map<string, number>();
-  for (const t of transactions) {
-    if (t.type === type) {
-      byDate.set(t.date, (byDate.get(t.date) ?? 0) + t.amount);
-    }
-  }
-
-  const data = [];
-  for (let i = DAYS - 1; i >= 0; i--) {
-    const day = new Date();
-    day.setDate(day.getDate() - i);
-    const iso = day.toISOString().slice(0, 10);
-    data.push({
-      label: day.toLocaleDateString("pl-PL", { day: "numeric", month: "short" }),
-      amount: byDate.get(iso) ?? 0,
-    });
-  }
+  const data = buildSeries(transactions, type, period);
+  const tickInterval =
+    period === "month" ? 6 : period === "year" ? 0 : "preserveStartEnd";
 
   const color = LINE_COLOR[type];
   const gradientId = `fill-${type}`;
@@ -64,7 +129,7 @@ export function TransactionChart({ type }: { type: TransactionType }) {
             dataKey="label"
             tickLine={false}
             axisLine={false}
-            interval={6}
+            interval={tickInterval}
             tick={{ fontSize: 11, fill: "#0c3529", fillOpacity: 0.5 }}
           />
           <YAxis hide domain={[0, "dataMax"]} />

@@ -2,6 +2,22 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer base {
+  /* Bez domyślnej niebieskiej obwódki przeglądarki. Dla nawigacji
+     klawiaturą zostawiamy delikatny, markowy pierścień (nie niebieski). */
+  :focus {
+    outline: none;
+  }
+  :focus-visible {
+    outline: 2px solid #059669;
+    outline-offset: 2px;
+  }
+  /* Bez niebieskiego podświetlenia dotknięcia na mobile. */
+  * {
+    -webkit-tap-highlight-color: transparent;
+  }
+}
+
 @layer components {
   /* Klocek: podstawowy budulec całego UI */
   .brick {

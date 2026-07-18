@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Trash2 } from "lucide-react";
 import { Modal } from "@/components/Modal";
 import { useFinly } from "@/lib/store";
-import { cn, formatDate, formatPLN } from "@/lib/utils";
+import { cn, formatDate, formatPLN, matchesPeriod, type Period } from "@/lib/utils";
 import type { TransactionType } from "@/lib/types";
 
 const CATEGORY_EMOJI: Record<string, string> = {
@@ -19,6 +19,7 @@ const CATEGORY_EMOJI: Record<string, string> = {
   Rozrywka: "🎮",
   Transport: "🚌",
   Rachunki: "📄",
+  Zdrowie: "🩺",
 };
 
 const COPY: Record<
@@ -45,13 +46,21 @@ function pluralPozycje(n: number) {
   return "pozycji";
 }
 
-export function CategoryDashboard({ type }: { type: TransactionType }) {
+export function CategoryDashboard({
+  type,
+  period,
+}: {
+  type: TransactionType;
+  period: Period;
+}) {
   const { transactions, removeTransaction } = useFinly();
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 
   const income = type === "income";
   const copy = COPY[type];
-  const items = transactions.filter((t) => t.type === type);
+  const items = transactions.filter(
+    (t) => t.type === type && matchesPeriod(t.date, period)
+  );
   const total = items.reduce((acc, t) => acc + t.amount, 0);
 
   const byCategory = new Map<string, number>();
