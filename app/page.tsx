@@ -142,26 +142,23 @@ export default function DashboardPage() {
         />
       </div>
 
-      <div className="grid grid-cols-3 gap-2">
-        {(Object.keys(PERIOD_LABELS) as Period[]).map((key) => (
-          <ViewButton
-            key={key}
-            label={PERIOD_LABELS[key]}
-            active={period === key}
-            activeClass="border-ink bg-ink text-white shadow-brick-sm"
-            onClick={() => setPeriod(key)}
-          />
-        ))}
-      </div>
-
       <section className="brick p-4">
-        <div className="flex items-baseline justify-between">
+        <div className="flex items-center justify-between gap-2">
           <h2 className="font-display text-xl font-bold">
             {view === "expense" ? "Wydatki" : "Dochody"}
           </h2>
-          <span className="text-xs font-semibold text-ink/40">
-            {PERIOD_LABELS[period]}
-          </span>
+          <select
+            aria-label="Wybierz okres"
+            value={period}
+            onChange={(e) => setPeriod(e.target.value as Period)}
+            className="rounded-xl border-2 border-ink bg-white px-2.5 py-1 text-xs font-bold text-ink shadow-brick-sm outline-none"
+          >
+            {(Object.keys(PERIOD_LABELS) as Period[]).map((key) => (
+              <option key={key} value={key}>
+                {PERIOD_LABELS[key]}
+              </option>
+            ))}
+          </select>
         </div>
         <div className="mt-2">
           <TransactionChart type={view} period={period} />
