@@ -6,6 +6,8 @@ import { useFinly } from "@/lib/store";
 import { cn, todayISO } from "@/lib/utils";
 import type { Recurrence, TransactionType } from "@/lib/types";
 
+const CUSTOM = "__custom__";
+
 const CATEGORIES: Record<TransactionType, string[]> = {
   income: ["Wypłata", "Premia", "Zlecenie", "Sprzedaż", "Kieszonkowe", "Inne"],
   expense: [
@@ -47,7 +49,6 @@ export function AddTransactionSheet() {
   const [amount, setAmount] = useState("");
   const [title, setTitle] = useState("");
   const [category, setCategory] = useState("");
-  const [creatingCustom, setCreatingCustom] = useState(false);
   const [customCategory, setCustomCategory] = useState("");
   const [recurrence, setRecurrence] = useState<Recurrence | "none">("none");
   const [date, setDate] = useState(todayISO);
@@ -65,6 +66,7 @@ export function AddTransactionSheet() {
   if (!addOpen) return null;
 
   const parsedAmount = parseFloat(amount.replace(",", "."));
+  const creatingCustom = category === CUSTOM;
   const resolvedCategory = creatingCustom
     ? customCategory.trim()
     : category || "Inne";
@@ -74,16 +76,9 @@ export function AddTransactionSheet() {
     (!creatingCustom || customCategory.trim().length > 0);
   const isFuture = date > todayISO();
 
-  const chipActive =
-    type === "income"
-      ? "border-ink bg-brand text-white shadow-brick-sm"
-      : "border-ink bg-rose-400 text-white shadow-brick-sm";
-  const chipIdle = "border-ink/20 bg-white text-ink/50";
-
   function switchType(next: TransactionType) {
     setType(next);
     setCategory("");
-    setCreatingCustom(false);
     setCustomCategory("");
   }
 
@@ -104,7 +99,6 @@ export function AddTransactionSheet() {
     setAmount("");
     setTitle("");
     setCategory("");
-    setCreatingCustom(false);
     setCustomCategory("");
     setRecurrence("none");
     setNote("");
@@ -172,39 +166,24 @@ export function AddTransactionSheet() {
         </div>
 
         <div>
-          <label className="label">Kategoria</label>
-          <div className="flex flex-wrap gap-2">
+          <label className="label" htmlFor="category">
+            Kategoria
+          </label>
+          <select
+            id="category"
+            className="input"
+            value={category}
+            onChange={(e) => setCategory(e.target.value)}
+          >
+            <option value="">Wybierz…</option>
             {categoryOptions.map((c) => (
-              <button
-                key={c}
-                type="button"
-                onClick={() => {
-                  setCategory(c);
-                  setCreatingCustom(false);
-                }}
-                className={cn(
-                  "rounded-full border-2 px-3 py-1.5 text-sm font-bold transition-all",
-                  !creatingCustom && category === c ? chipActive : chipIdle
-                )}
-              >
+              <option key={c} value={c}>
                 {CATEGORY_EMOJI[c] ? `${CATEGORY_EMOJI[c]} ` : ""}
                 {c}
-              </button>
+              </option>
             ))}
-            <button
-              type="button"
-              onClick={() => {
-                setCreatingCustom(true);
-                setCategory("");
-              }}
-              className={cn(
-                "rounded-full border-2 px-3 py-1.5 text-sm font-bold transition-all",
-                creatingCustom ? chipActive : chipIdle
-              )}
-            >
-              ➕ Własna
-            </button>
-          </div>
+            <option value={CUSTOM}>➕ Stwórz własną…</option>
+          </select>
           {creatingCustom && (
             <input
               className="input mt-2"
@@ -217,24 +196,23 @@ export function AddTransactionSheet() {
         </div>
 
         <div>
-          <label className="label">Powtarzalność</label>
-          <div className="grid grid-cols-3 gap-2">
+          <label className="label" htmlFor="recurrence">
+            Powtarzalność
+          </label>
+          <select
+            id="recurrence"
+            className="input"
+            value={recurrence}
+            onChange={(e) =>
+              setRecurrence(e.target.value as Recurrence | "none")
+            }
+          >
             {RECURRENCE_OPTIONS.map((o) => (
-              <button
-                key={o.value}
-                type="button"
-                onClick={() => setRecurrence(o.value)}
-                className={cn(
-                  "rounded-2xl border-2 py-2.5 font-display text-sm font-bold transition-all",
-                  recurrence === o.value
-                    ? "border-ink bg-ink text-white shadow-brick-sm"
-                    : "border-ink/20 bg-white text-ink/40"
-                )}
-              >
+              <option key={o.value} value={o.value}>
                 {o.label}
-              </button>
+              </option>
             ))}
-          </div>
+          </select>
         </div>
 
         <div>

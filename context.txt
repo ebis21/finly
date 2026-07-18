@@ -319,3 +319,10 @@ Category (kategoria):
     z „Zdrowie" 🩺 i kafelkiem „➕ Własna" (pole na własną nazwę).
   • Kafle Wpłynęło/Wydałem i wykres liczą teraz wystąpienia (cykliczne
     widoczne w każdym miesiącu). Usuwanie cyklicznej pozycji kasuje całą serię.
+[2026-07-18] UI: powrót do list rozwijanych (issues #14, #15). Feedback:
+  „3 klocki obok = za dużo się dzieje, wybieraj z listy”.
+  • #14 przełącznik okresu (Miesiąc/Rok/Wszystko) z trzech przycisków →
+    kompaktowy <select> w nagłówku wykresu.
+  • #15 wybór kategorii z „klocków” → z powrotem <select> (Zdrowie +
+    „➕ Stwórz własną…”). Przy okazji selektor powtarzalności też jako
+    <select> (spójność, mniej klikania). Logika cykliczności bez zmian.
