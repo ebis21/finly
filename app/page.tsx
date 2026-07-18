@@ -11,7 +11,7 @@ import { Studs } from "@/components/Studs";
 import { TransactionChart } from "@/components/TransactionChart";
 import { CategoryDashboard } from "@/components/CategoryDashboard";
 import { useFinly } from "@/lib/store";
-import { cn, formatPLN } from "@/lib/utils";
+import { cn, formatPLN, todayISO, type Period } from "@/lib/utils";
 import type { TransactionType } from "@/lib/types";
 
 function monthKey(offset: number) {
@@ -21,16 +21,37 @@ function monthKey(offset: number) {
   return d.toISOString().slice(0, 7);
 }
 
+const PERIOD_LABELS: Record<Period, string> = {
+  month: "Miesiąc",
+  year: "Rok",
+  all: "Wszystko",
+};
+
 export default function DashboardPage() {
-  const { transactions } = useFinly();
+  const { transactions, goals } = useFinly();
   const [view, setView] = useState<TransactionType>("expense");
+  const [period, setPeriod] = useState<Period>("month");
+
+  const today = todayISO();
 
   const sumFor = (type: "income" | "expense", month?: string) =>
     transactions
       .filter((t) => t.type === type && (!month || t.date.startsWith(month)))
       .reduce((acc, t) => acc + t.amount, 0);
 
-  const balance = sumFor("income") - sumFor("expense");
+  // Zrealizowane = do dziś włącznie; przyszłe dochody to "Oczekujące".
+  const realizedIncome = transactions
+    .filter((t) => t.type === "income" && t.date <= today)
+    .reduce((acc, t) => acc + t.amount, 0);
+  const realizedExpense = transactions
+    .filter((t) => t.type === "expense" && t.date <= today)
+    .reduce((acc, t) => acc + t.amount, 0);
+  const savedInGoals = goals.reduce((acc, g) => acc + g.saved, 0);
+  const balance = realizedIncome - realizedExpense - savedInGoals;
+  const pending = transactions
+    .filter((t) => t.type === "income" && t.date > today)
+    .reduce((acc, t) => acc + t.amount, 0);
+
   const thisMonth = monthKey(0);
   const prevMonth = monthKey(-1);
 
@@ -42,6 +63,17 @@ export default function DashboardPage() {
         <p className="font-display text-5xl font-bold tracking-tight">
           {formatPLN(balance)}
         </p>
+        <div className="mt-3 flex flex-wrap items-center gap-2">
+          <span className="inline-flex items-center gap-1.5 rounded-full border-2 border-white/30 bg-ink/25 px-3 py-1 text-sm font-bold">
+            <span className="text-emerald-100/90">Oczekujące</span>
+            {formatPLN(pending)}
+          </span>
+          {savedInGoals > 0 && (
+            <span className="inline-flex items-center gap-1.5 rounded-full border-2 border-white/30 bg-white/10 px-3 py-1 text-xs font-bold text-emerald-50">
+              🎯 na cele {formatPLN(savedInGoals)}
+            </span>
+          )}
+        </div>
       </section>
 
       <div className="grid grid-cols-2 gap-4">
@@ -81,21 +113,33 @@ export default function DashboardPage() {
         />
       </div>
 
+      <div className="grid grid-cols-3 gap-2">
+        {(Object.keys(PERIOD_LABELS) as Period[]).map((key) => (
+          <ViewButton
+            key={key}
+            label={PERIOD_LABELS[key]}
+            active={period === key}
+            activeClass="border-ink bg-ink text-white shadow-brick-sm"
+            onClick={() => setPeriod(key)}
+          />
+        ))}
+      </div>
+
       <section className="brick p-4">
         <div className="flex items-baseline justify-between">
           <h2 className="font-display text-xl font-bold">
             {view === "expense" ? "Wydatki" : "Dochody"}
           </h2>
           <span className="text-xs font-semibold text-ink/40">
-            ostatnie 30 dni
+            {PERIOD_LABELS[period]}
           </span>
         </div>
         <div className="mt-2">
-          <TransactionChart type={view} />
+          <TransactionChart type={view} period={period} />
         </div>
       </section>
 
-      <CategoryDashboard type={view} />
+      <CategoryDashboard type={view} period={period} />
     </div>
   );
 }

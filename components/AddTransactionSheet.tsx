@@ -1,16 +1,19 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Modal } from "@/components/Modal";
 import { useFinly } from "@/lib/store";
-import { cn } from "@/lib/utils";
+import { cn, todayISO } from "@/lib/utils";
 import type { TransactionType } from "@/lib/types";
+
+const CUSTOM = "__custom__";
 
 const CATEGORIES: Record<TransactionType, string[]> = {
   income: ["Wypłata", "Premia", "Zlecenie", "Sprzedaż", "Kieszonkowe", "Inne"],
   expense: [
     "Jedzenie",
     "Zakupy",
+    "Zdrowie",
     "Prezenty",
     "Rozrywka",
     "Transport",
@@ -20,23 +23,41 @@ const CATEGORIES: Record<TransactionType, string[]> = {
 };
 
 export function AddTransactionSheet() {
-  const { addOpen, setAddOpen, addTransaction } = useFinly();
+  const { addOpen, setAddOpen, addTransaction, transactions } = useFinly();
   const [type, setType] = useState<TransactionType>("expense");
   const [amount, setAmount] = useState("");
   const [title, setTitle] = useState("");
   const [category, setCategory] = useState("");
-  const [date, setDate] = useState(() => new Date().toISOString().slice(0, 10));
+  const [customCategory, setCustomCategory] = useState("");
+  const [date, setDate] = useState(todayISO);
   const [note, setNote] = useState("");
   const [submitting, setSubmitting] = useState(false);
+
+  // Kategorie: wbudowane + własne wcześniej użyte (pamiętane przez transakcje).
+  const categoryOptions = useMemo(() => {
+    const used = transactions
+      .filter((t) => t.type === type)
+      .map((t) => t.category);
+    return [...new Set([...CATEGORIES[type], ...used])];
+  }, [transactions, type]);
 
   if (!addOpen) return null;
 
   const parsedAmount = parseFloat(amount.replace(",", "."));
-  const valid = parsedAmount > 0 && title.trim().length > 0;
+  const creatingCustom = category === CUSTOM;
+  const resolvedCategory = creatingCustom
+    ? customCategory.trim()
+    : category || "Inne";
+  const valid =
+    parsedAmount > 0 &&
+    title.trim().length > 0 &&
+    (!creatingCustom || customCategory.trim().length > 0);
+  const isFutureIncome = type === "income" && date > todayISO();
 
   function switchType(next: TransactionType) {
     setType(next);
     setCategory("");
+    setCustomCategory("");
   }
 
   async function submit() {
@@ -46,7 +67,7 @@ export function AddTransactionSheet() {
       type,
       amount: parsedAmount,
       title: title.trim(),
-      category: category || "Inne",
+      category: resolvedCategory || "Inne",
       date,
       note: note.trim() || undefined,
     });
@@ -55,8 +76,9 @@ export function AddTransactionSheet() {
     setAmount("");
     setTitle("");
     setCategory("");
+    setCustomCategory("");
     setNote("");
-    setDate(new Date().toISOString().slice(0, 10));
+    setDate(todayISO());
     setAddOpen(false);
   }
 
@@ -130,12 +152,22 @@ export function AddTransactionSheet() {
             onChange={(e) => setCategory(e.target.value)}
           >
             <option value="">Wybierz…</option>
-            {CATEGORIES[type].map((c) => (
+            {categoryOptions.map((c) => (
               <option key={c} value={c}>
                 {c}
               </option>
             ))}
+            <option value={CUSTOM}>➕ Stwórz własną…</option>
           </select>
+          {creatingCustom && (
+            <input
+              className="input mt-2"
+              placeholder="Nazwa własnej kategorii, np. Zwierzak"
+              value={customCategory}
+              onChange={(e) => setCustomCategory(e.target.value)}
+              autoFocus
+            />
+          )}
         </div>
 
         <div>
@@ -149,6 +181,12 @@ export function AddTransactionSheet() {
             value={date}
             onChange={(e) => setDate(e.target.value)}
           />
+          {isFutureIncome && (
+            <p className="mt-1.5 text-xs font-semibold text-brand-dark">
+              Data w przyszłości — ten dochód trafi do „Oczekujące” i wejdzie do
+              salda, gdy nadejdzie ten dzień.
+            </p>
+          )}
         </div>
 
         <div>
