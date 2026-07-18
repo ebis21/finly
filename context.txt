@@ -300,6 +300,32 @@ Category (kategoria):
   • #9 Niebieska obwódka: w globals.css warstwa base zdejmuje domyślny
     niebieski outline przeglądarki (:focus) i tap-highlight; dla klawiatury
     zostaje markowy zielony pierścień (:focus-visible, #059669).
+[2026-07-18] Poprawki v2 po feedbacku (issues #6, #7 doprecyzowane).
+  • #6 REALNE transakcje cykliczne (wcześniej błędnie zrobiony przełącznik
+    widoku): nowe pole recurrence ("monthly"/"yearly") na Transaction,
+    selektor „Jednorazowo / Co miesiąc / Co rok" w formularzu. Wystąpienia
+    rozwijane helperem lib/recurrence.ts (occurrencesInRange + addPeriod,
+    z przycięciem dnia do długości miesiąca) — używane w saldzie,
+    oczekujących, wykresie i podziale na kategorie. Testy: lib/recurrence.test.ts.
+    Baza: kolumna transactions.recurrence + migracja supabase/migrations/
+    2026-07-18-add-recurrence.sql (tryb lokalny nie wymaga migracji);
+    mapowanie w hybrid-data (recurrence + is_recurring).
+  • #7 „Oczekujące" przeniesione OBOK „Mam" jako mniejsza, ciemniejsza
+    rubryka (bg-ink/35). Liczy przyszłe przychody − przyszłe wydatki
+    (zaplanowane + cykliczne) od jutra do końca bieżącego roku.
+  • #8 potwierdzone: saldo = zrealizowane dochody − wydatki − odłożone na
+    cele (teraz liczone z wystąpień, więc cykliczne też wchodzą).
+  • #11 kategorie jako widoczne „klocki" do wyboru (zamiast dropdowna),
+    z „Zdrowie" 🩺 i kafelkiem „➕ Własna" (pole na własną nazwę).
+  • Kafle Wpłynęło/Wydałem i wykres liczą teraz wystąpienia (cykliczne
+    widoczne w każdym miesiącu). Usuwanie cyklicznej pozycji kasuje całą serię.
+[2026-07-18] UI: powrót do list rozwijanych (issues #14, #15). Feedback:
+  „3 klocki obok = za dużo się dzieje, wybieraj z listy”.
+  • #14 przełącznik okresu (Miesiąc/Rok/Wszystko) z trzech przycisków →
+    kompaktowy <select> w nagłówku wykresu.
+  • #15 wybór kategorii z „klocków” → z powrotem <select> (Zdrowie +
+    „➕ Stwórz własną…”). Przy okazji selektor powtarzalności też jako
+    <select> (spójność, mniej klikania). Logika cykliczności bez zmian.
 [2026-07-18] Tryb rodzic↔dziecko (nowa funkcja; spec: docs/superpowers/
   specs/2026-07-18-parent-child-mode-design.md). Dziecko ma własne konto;
   rodzic łączy się jednorazowym kodem generowanym przez dziecko (ważny 15 min).
@@ -312,7 +338,7 @@ Category (kategoria):
   Functions). Nowe: tabele family_links, link_codes; kolumna
   transactions.added_by_user_id; migracja supabase/migrations/
   2026-07-18-parent-child.sql (konto wymaga uruchomienia; gość nie). Kod:
-  lib/family.ts, lib/finance.ts (wspólne walletTotals + test), components/
-  FamilyChildPanel.tsx, components/ChildDetail.tsx, app/dzieci/page.tsx,
-  zmiany w BottomNav (5 kolumn, zakładka Dzieci) i Header. Tryb rodzic↔dziecko
-  wymaga konta (gość dostaje podpowiedź o logowaniu).
+  lib/family.ts, lib/finance.ts (wspólne walletTotals, cykliczność-świadome),
+  components/FamilyChildPanel.tsx, components/ChildDetail.tsx,
+  app/dzieci/page.tsx, zmiany w BottomNav (5 kolumn, zakładka Dzieci)
+  i Header. Tryb rodzic↔dziecko wymaga konta (gość dostaje podpowiedź).

@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 import { Modal } from "@/components/Modal";
 import { useFinly } from "@/lib/store";
 import { cn, todayISO } from "@/lib/utils";
-import type { TransactionType } from "@/lib/types";
+import type { Recurrence, TransactionType } from "@/lib/types";
 
 const CUSTOM = "__custom__";
 
@@ -22,6 +22,27 @@ const CATEGORIES: Record<TransactionType, string[]> = {
   ],
 };
 
+const CATEGORY_EMOJI: Record<string, string> = {
+  Wypłata: "💼",
+  Premia: "🏆",
+  Zlecenie: "🛠️",
+  Sprzedaż: "🛍️",
+  Kieszonkowe: "🐷",
+  Jedzenie: "🍎",
+  Zakupy: "🛒",
+  Zdrowie: "🩺",
+  Prezenty: "🎁",
+  Rozrywka: "🎮",
+  Transport: "🚌",
+  Rachunki: "📄",
+};
+
+const RECURRENCE_OPTIONS: { value: Recurrence | "none"; label: string }[] = [
+  { value: "none", label: "Jednorazowo" },
+  { value: "monthly", label: "Co miesiąc" },
+  { value: "yearly", label: "Co rok" },
+];
+
 export function AddTransactionSheet() {
   const { addOpen, setAddOpen, addTransaction, transactions } = useFinly();
   const [type, setType] = useState<TransactionType>("expense");
@@ -29,11 +50,12 @@ export function AddTransactionSheet() {
   const [title, setTitle] = useState("");
   const [category, setCategory] = useState("");
   const [customCategory, setCustomCategory] = useState("");
+  const [recurrence, setRecurrence] = useState<Recurrence | "none">("none");
   const [date, setDate] = useState(todayISO);
   const [note, setNote] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
-  // Kategorie: wbudowane + własne wcześniej użyte (pamiętane przez transakcje).
+  // Do wyboru: wbudowane kategorie + własne, których już użyto (są pamiętane).
   const categoryOptions = useMemo(() => {
     const used = transactions
       .filter((t) => t.type === type)
@@ -52,7 +74,7 @@ export function AddTransactionSheet() {
     parsedAmount > 0 &&
     title.trim().length > 0 &&
     (!creatingCustom || customCategory.trim().length > 0);
-  const isFutureIncome = type === "income" && date > todayISO();
+  const isFuture = date > todayISO();
 
   function switchType(next: TransactionType) {
     setType(next);
@@ -70,6 +92,7 @@ export function AddTransactionSheet() {
       category: resolvedCategory || "Inne",
       date,
       note: note.trim() || undefined,
+      recurrence: recurrence === "none" ? undefined : recurrence,
     });
     setSubmitting(false);
     if (result.error) return;
@@ -77,6 +100,7 @@ export function AddTransactionSheet() {
     setTitle("");
     setCategory("");
     setCustomCategory("");
+    setRecurrence("none");
     setNote("");
     setDate(todayISO());
     setAddOpen(false);
@@ -154,6 +178,7 @@ export function AddTransactionSheet() {
             <option value="">Wybierz…</option>
             {categoryOptions.map((c) => (
               <option key={c} value={c}>
+                {CATEGORY_EMOJI[c] ? `${CATEGORY_EMOJI[c]} ` : ""}
                 {c}
               </option>
             ))}
@@ -171,8 +196,28 @@ export function AddTransactionSheet() {
         </div>
 
         <div>
+          <label className="label" htmlFor="recurrence">
+            Powtarzalność
+          </label>
+          <select
+            id="recurrence"
+            className="input"
+            value={recurrence}
+            onChange={(e) =>
+              setRecurrence(e.target.value as Recurrence | "none")
+            }
+          >
+            {RECURRENCE_OPTIONS.map((o) => (
+              <option key={o.value} value={o.value}>
+                {o.label}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div>
           <label className="label" htmlFor="date">
-            Data
+            {recurrence === "none" ? "Data" : "Data startu"}
           </label>
           <input
             id="date"
@@ -181,11 +226,19 @@ export function AddTransactionSheet() {
             value={date}
             onChange={(e) => setDate(e.target.value)}
           />
-          {isFutureIncome && (
-            <p className="mt-1.5 text-xs font-semibold text-brand-dark">
-              Data w przyszłości — ten dochód trafi do „Oczekujące” i wejdzie do
-              salda, gdy nadejdzie ten dzień.
+          {recurrence !== "none" ? (
+            <p className="mt-1.5 text-xs font-semibold text-ink/50">
+              {type === "income" ? "Ten dochód" : "Ten wydatek"} będzie liczony{" "}
+              {recurrence === "monthly" ? "co miesiąc" : "co rok"} od tej daty.
             </p>
+          ) : (
+            isFuture &&
+            type === "income" && (
+              <p className="mt-1.5 text-xs font-semibold text-brand-dark">
+                Data w przyszłości — ten dochód trafi do „Oczekujące” i wejdzie do
+                salda, gdy nadejdzie ten dzień.
+              </p>
+            )
           )}
         </div>
 

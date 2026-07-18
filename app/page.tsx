@@ -11,8 +11,8 @@ import { Studs } from "@/components/Studs";
 import { TransactionChart } from "@/components/TransactionChart";
 import { CategoryDashboard } from "@/components/CategoryDashboard";
 import { useFinly } from "@/lib/store";
-import { cn, formatPLN, type Period } from "@/lib/utils";
-import { walletTotals } from "@/lib/finance";
+import { cn, formatPLN, todayISO, type Period } from "@/lib/utils";
+import { occurrencesInRange, sumByType } from "@/lib/recurrence";
 import type { TransactionType } from "@/lib/types";
 
 function monthKey(offset: number) {
@@ -20,6 +20,22 @@ function monthKey(offset: number) {
   d.setDate(1);
   d.setMonth(d.getMonth() + offset);
   return d.toISOString().slice(0, 7);
+}
+
+// Granice miesiąca "RRRR-MM" jako zakres dat ISO.
+function monthBounds(mk: string) {
+  const [y, m] = mk.split("-").map(Number);
+  const last = new Date(y, m, 0).getDate();
+  return { from: `${mk}-01`, to: `${mk}-${String(last).padStart(2, "0")}` };
+}
+
+function nextDayISO(iso: string) {
+  const d = new Date(`${iso}T00:00:00`);
+  d.setDate(d.getDate() + 1);
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${y}-${m}-${day}`;
 }
 
 const PERIOD_LABELS: Record<Period, string> = {
@@ -33,55 +49,80 @@ export default function DashboardPage() {
   const [view, setView] = useState<TransactionType>("expense");
   const [period, setPeriod] = useState<Period>("month");
 
-  const sumFor = (type: "income" | "expense", month?: string) =>
-    transactions
-      .filter((t) => t.type === type && (!month || t.date.startsWith(month)))
-      .reduce((acc, t) => acc + t.amount, 0);
+  const today = todayISO();
 
-  const { balance, pending, savedInGoals } = walletTotals(transactions, goals);
+  // Wszystkie wystąpienia (w tym cykliczne) rozwinięte na konkretne dni.
+  const earliest = transactions.reduce(
+    (min, t) => (t.date < min ? t.date : min),
+    today
+  );
+  const realized = occurrencesInRange(transactions, earliest, today);
+  const realizedIncome = sumByType(realized, "income");
+  const realizedExpense = sumByType(realized, "expense");
+  const savedInGoals = goals.reduce((acc, g) => acc + g.saved, 0);
+  // "Mam" = zrealizowane dochody − wydatki − pieniądze odłożone na cele.
+  const balance = realizedIncome - realizedExpense - savedInGoals;
+
+  // "Oczekujące" = zaplanowane od jutra do końca roku (przychody − wydatki),
+  // wliczając powtarzające się wpłaty i płatności.
+  const endOfYear = `${today.slice(0, 4)}-12-31`;
+  const future = occurrencesInRange(transactions, nextDayISO(today), endOfYear);
+  const pending = sumByType(future, "income") - sumByType(future, "expense");
 
   const thisMonth = monthKey(0);
   const prevMonth = monthKey(-1);
+  const mThis = monthBounds(thisMonth);
+  const mPrev = monthBounds(prevMonth);
+  const occThis = occurrencesInRange(transactions, mThis.from, mThis.to);
+  const occPrev = occurrencesInRange(transactions, mPrev.from, mPrev.to);
+  const incomeThis = sumByType(occThis, "income");
+  const incomePrev = sumByType(occPrev, "income");
+  const expenseThis = sumByType(occThis, "expense");
+  const expensePrev = sumByType(occPrev, "expense");
 
   return (
     <div className="flex flex-col gap-4">
       <section className="rounded-3xl border-2 border-ink bg-gradient-to-b from-brand to-brand-dark p-5 text-white shadow-brick-lg">
         <Studs className="text-white/40" />
-        <p className="mt-4 text-sm font-bold text-emerald-100">Mam</p>
-        <p className="font-display text-5xl font-bold tracking-tight">
-          {formatPLN(balance)}
-        </p>
-        <div className="mt-3 flex flex-wrap items-center gap-2">
-          <span className="inline-flex items-center gap-1.5 rounded-full border-2 border-white/30 bg-ink/25 px-3 py-1 text-sm font-bold">
-            <span className="text-emerald-100/90">Oczekujące</span>
-            {formatPLN(pending)}
-          </span>
-          {savedInGoals > 0 && (
-            <span className="inline-flex items-center gap-1.5 rounded-full border-2 border-white/30 bg-white/10 px-3 py-1 text-xs font-bold text-emerald-50">
-              🎯 na cele {formatPLN(savedInGoals)}
-            </span>
-          )}
+        <div className="mt-4 flex items-end justify-between gap-3">
+          <div className="min-w-0">
+            <p className="text-sm font-bold text-emerald-100">Mam</p>
+            <p className="font-display text-5xl font-bold tracking-tight">
+              {formatPLN(balance)}
+            </p>
+          </div>
+          <div className="shrink-0 rounded-2xl border-2 border-white/25 bg-ink/35 px-3 py-2 text-right">
+            <p className="text-[11px] font-bold uppercase tracking-wide text-emerald-100/80">
+              Oczekujące
+            </p>
+            <p className="font-display text-lg font-bold">{formatPLN(pending)}</p>
+          </div>
         </div>
+        {savedInGoals > 0 && (
+          <p className="mt-3 inline-flex items-center gap-1.5 rounded-full border-2 border-white/30 bg-white/10 px-3 py-1 text-xs font-bold text-emerald-50">
+            🎯 odłożone na cele {formatPLN(savedInGoals)}
+          </p>
+        )}
       </section>
 
       <div className="grid grid-cols-2 gap-4">
         <StatTile
           label="Wpłynęło"
           icon={<TrendingUp className="h-4 w-4 text-brand-dark" />}
-          amount={sumFor("income", thisMonth)}
+          amount={incomeThis}
           amountClass="text-brand-dark"
           prefix="+"
-          current={sumFor("income", thisMonth)}
-          previous={sumFor("income", prevMonth)}
+          current={incomeThis}
+          previous={incomePrev}
           goodWhenUp
         />
         <StatTile
           label="Wydałem"
           icon={<TrendingDown className="h-4 w-4 text-rose-500" />}
-          amount={sumFor("expense", thisMonth)}
+          amount={expenseThis}
           amountClass="text-rose-500"
-          current={sumFor("expense", thisMonth)}
-          previous={sumFor("expense", prevMonth)}
+          current={expenseThis}
+          previous={expensePrev}
           goodWhenUp={false}
         />
       </div>
@@ -101,26 +142,23 @@ export default function DashboardPage() {
         />
       </div>
 
-      <div className="grid grid-cols-3 gap-2">
-        {(Object.keys(PERIOD_LABELS) as Period[]).map((key) => (
-          <ViewButton
-            key={key}
-            label={PERIOD_LABELS[key]}
-            active={period === key}
-            activeClass="border-ink bg-ink text-white shadow-brick-sm"
-            onClick={() => setPeriod(key)}
-          />
-        ))}
-      </div>
-
       <section className="brick p-4">
-        <div className="flex items-baseline justify-between">
+        <div className="flex items-center justify-between gap-2">
           <h2 className="font-display text-xl font-bold">
             {view === "expense" ? "Wydatki" : "Dochody"}
           </h2>
-          <span className="text-xs font-semibold text-ink/40">
-            {PERIOD_LABELS[period]}
-          </span>
+          <select
+            aria-label="Wybierz okres"
+            value={period}
+            onChange={(e) => setPeriod(e.target.value as Period)}
+            className="rounded-xl border-2 border-ink bg-white px-2.5 py-1 text-xs font-bold text-ink shadow-brick-sm outline-none"
+          >
+            {(Object.keys(PERIOD_LABELS) as Period[]).map((key) => (
+              <option key={key} value={key}>
+                {PERIOD_LABELS[key]}
+              </option>
+            ))}
+          </select>
         </div>
         <div className="mt-2">
           <TransactionChart type={view} period={period} />
