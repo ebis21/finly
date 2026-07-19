@@ -36,7 +36,11 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#10b981",
+  // Kolor paska stanu = tło aplikacji (paper), żeby na telefonie nie było
+  // jaskrawozielonego paska nad nagłówkiem. `cover` pozwala nam samodzielnie
+  // obsłużyć bezpieczne obszary (notch / pasek gestów) przez env(safe-area-*).
+  themeColor: "#f2faf5",
+  viewportFit: "cover",
 };
 
 export default function RootLayout({
@@ -46,12 +50,12 @@ export default function RootLayout({
 }) {
   return (
     <html lang="pl" className={`${baloo.variable} ${nunito.variable}`}>
-      <body className="bg-mint font-sans text-ink antialiased">
+      <body className="min-h-[100dvh] bg-paper font-sans text-ink antialiased">
         <ServiceWorkerRegister />
         <AuthProvider>
           <AppEntry>
             <FinlyProvider>
-              <div className="relative mx-auto flex min-h-screen w-full max-w-md flex-col border-x-2 border-ink bg-paper">
+              <div className="relative mx-auto flex min-h-[100dvh] w-full max-w-md flex-col border-x-2 border-ink bg-paper">
                 <Header />
                 <main className="flex-1 px-4 pb-28 pt-2">{children}</main>
                 <BottomNav />

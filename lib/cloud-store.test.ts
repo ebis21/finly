@@ -8,7 +8,11 @@ function loadClient(results: Record<string, { data: unknown[] | null; error: { m
     from(table: string) {
       return {
         select() {
-          return { order: vi.fn().mockResolvedValue(results[table]) };
+          return {
+            eq() {
+              return { order: vi.fn().mockResolvedValue(results[table]) };
+            },
+          };
         },
       };
     },
@@ -22,14 +26,14 @@ describe("loadCloudData", () => {
       goals: { data: [], error: null },
       assets: { data: [], error: null },
     });
-    await expect(loadCloudData(ok)).resolves.toMatchObject({ transactions: [{ amount: 10, title: "Zwrot" }] });
+    await expect(loadCloudData(ok, "user-9")).resolves.toMatchObject({ transactions: [{ amount: 10, title: "Zwrot" }] });
 
     const failing = loadClient({
       transactions: { data: [], error: null },
       goals: { data: null, error: { message: "RLS denied" } },
       assets: { data: [], error: null },
     });
-    await expect(loadCloudData(failing)).rejects.toThrow("RLS denied");
+    await expect(loadCloudData(failing, "user-9")).rejects.toThrow("RLS denied");
   });
 });
 

@@ -29,14 +29,23 @@ describe("walletTotals", () => {
     expect(r.savedInGoals).toBe(100);
   });
 
-  it("future-dated income counts as pending, not balance", () => {
+  it("counts near-future income (within 1 month) as pending, not balance", () => {
     const transactions = [
-      tx({ type: "income", amount: 500, date: "2026-12-31" }),
+      tx({ type: "income", amount: 500, date: "2026-08-10" }), // za ~3 tyg.
       tx({ type: "income", amount: 1000, date: "2026-07-01" }),
     ];
     const r = walletTotals(transactions, [], TODAY);
     expect(r.pending).toBe(500);
     expect(r.balance).toBe(1000);
+  });
+
+  it("ignores income planned further than 1 month ahead", () => {
+    const transactions = [
+      tx({ type: "income", amount: 500, date: "2026-12-31" }), // za ~5 mies.
+      tx({ type: "income", amount: 2000, date: "2028-07-01" }), // za 2 lata
+    ];
+    const r = walletTotals(transactions, [], TODAY);
+    expect(r.pending).toBe(0);
   });
 
   it("a parent's goal contribution keeps balance flat (income + saved cancel)", () => {

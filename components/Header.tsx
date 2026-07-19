@@ -23,7 +23,7 @@ export function Header() {
   }
 
   return (
-    <header className="flex items-center gap-2.5 px-4 py-4">
+    <header className="flex items-center gap-2.5 px-4 pb-4 pt-[calc(env(safe-area-inset-top)+1rem)]">
       <Image src="/logo.png" alt="Logo Finly — zielony klocek z monetą" width={40} height={40} priority className="h-10 w-10 rounded-xl border-2 border-ink object-cover shadow-brick-sm" />
       <span className="font-display text-2xl font-bold">Finly</span>
       <button type="button" aria-label="Twoje konto" onClick={() => setAccountOpen(true)} className="brick-press ml-auto flex h-10 w-10 items-center justify-center rounded-full border-2 border-ink bg-white text-ink shadow-brick-sm hover:bg-paper"><UserRound className="h-5 w-5" /></button>

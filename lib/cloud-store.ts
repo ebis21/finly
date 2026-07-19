@@ -16,11 +16,15 @@ function assertNoError(error: { message: string } | null) {
   if (error) throw new Error(error.message);
 }
 
-export async function loadCloudData(client: SupabaseClient): Promise<FinlyData> {
+// Wczytuje WYŁĄCZNIE dane właściciela konta. Filtr po user_id jest konieczny:
+// rodzic połączony z dzieckiem ma (przez RLS) prawo odczytu wierszy dziecka,
+// więc bez tego filtra `select("*")` wciągnąłby dane dziecka na pulpit rodzica.
+// Podgląd dziecka u rodzica jest osobny (lib/family.ts, filtr po id dziecka).
+export async function loadCloudData(client: SupabaseClient, userId: string): Promise<FinlyData> {
   const [transactions, goals, assets] = await Promise.all([
-    client.from("transactions").select("*").order("date", { ascending: false }),
-    client.from("goals").select("*").order("created_at", { ascending: true }),
-    client.from("assets").select("*").order("created_at", { ascending: true }),
+    client.from("transactions").select("*").eq("user_id", userId).order("date", { ascending: false }),
+    client.from("goals").select("*").eq("user_id", userId).order("created_at", { ascending: true }),
+    client.from("assets").select("*").eq("user_id", userId).order("created_at", { ascending: true }),
   ]);
   assertNoError(transactions.error);
   assertNoError(goals.error);

@@ -29,13 +29,13 @@ export function EntryGate({ onContinueAsGuest }: { onContinueAsGuest: () => void
             <RoleCard
               emoji="🧒"
               title="Jestem dzieckiem"
-              desc="Prowadzisz swój portfel. Możesz połączyć się z rodzicem (pokażesz mu kod) — będzie dorzucać kieszonkowe i kibicować Twoim celom."
+              desc="Prowadzisz swój portfel. Możesz połączyć się z rodzicem (pokażesz mu kod) — będzie podglądać Twój portfel, ale nic w nim nie zmieni."
               onClick={() => setStep({ kind: "signup", role: "child" })}
             />
             <RoleCard
               emoji="🧑‍🍼"
               title="Jestem rodzicem"
-              desc="Masz swój portfel i wgląd w portfele swoich dzieci. Możesz dorzucać im kieszonkowe i dopłacać do ich celów."
+              desc="Masz swój, osobny portfel oraz podgląd portfeli swoich dzieci — tylko do odczytu (widzisz wszystko, nic nie zmieniasz)."
               onClick={() => setStep({ kind: "signup", role: "parent" })}
             />
 

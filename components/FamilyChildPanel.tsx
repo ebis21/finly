@@ -58,8 +58,8 @@ export function FamilyChildPanel() {
     <div className="rounded-2xl border-2 border-ink bg-paper p-4 text-left">
       <p className="font-display text-sm font-bold">Rodzice</p>
       <p className="mt-0.5 text-xs font-semibold text-ink/50">
-        Pokaż kod rodzicowi — będzie mógł dorzucać kieszonkowe i widzieć Twoje
-        cele.
+        Pokaż kod rodzicowi — będzie podglądać Twój portfel (dochody, wydatki,
+        aktywa i cele), ale nic w nim nie zmieni.
       </p>
 
       {code ? (

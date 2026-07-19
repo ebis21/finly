@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { Plus } from "lucide-react";
 import { Modal } from "@/components/Modal";
 import { ChildDetail } from "@/components/ChildDetail";
@@ -9,6 +10,13 @@ import { listChildren, redeemCode, type FamilyMember } from "@/lib/family";
 
 export default function ChildrenPage() {
   const { user, loading: authLoading } = useAuth();
+  const router = useRouter();
+
+  // Konto dziecka nie ma dostępu do tej zakładki — od razu wracamy na pulpit,
+  // zamiast pokazywać ekran „ta sekcja jest dla rodziców”.
+  useEffect(() => {
+    if (!authLoading && user?.role === "child") router.replace("/");
+  }, [authLoading, user, router]);
   const [children, setChildren] = useState<FamilyMember[]>([]);
   const [loading, setLoading] = useState(true);
   const [connectOpen, setConnectOpen] = useState(false);
@@ -65,19 +73,8 @@ export default function ChildrenPage() {
     );
   }
 
-  if (user?.role === "child") {
-    return (
-      <div className="flex flex-col gap-4">
-        <h1 className="font-display text-3xl font-bold">Dzieci</h1>
-        <div className="brick p-8 text-center">
-          <p className="text-sm font-semibold text-ink/60">
-            Ta sekcja jest dla rodziców. Masz konto dziecka — swojego rodzica
-            połączysz w „Twoje konto → Rodzice” (ikona konta u góry).
-          </p>
-        </div>
-      </div>
-    );
-  }
+  // Dziecko jest przekierowywane na pulpit (useEffect powyżej) — nic nie renderujemy.
+  if (user?.role === "child") return null;
 
   return (
     <div className="flex flex-col gap-4">
