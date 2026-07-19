@@ -11,6 +11,7 @@ function tx(p: Partial<Transaction>): Transaction {
     category: p.category ?? "Inne",
     title: p.title ?? "x",
     note: p.note,
+    recurrence: p.recurrence,
     addedByUserId: p.addedByUserId,
   };
 }
@@ -29,23 +30,33 @@ describe("walletTotals", () => {
     expect(r.savedInGoals).toBe(100);
   });
 
-  it("counts near-future income (within 1 month) as pending, not balance", () => {
+  it("counts income later this month as pending, not balance", () => {
     const transactions = [
-      tx({ type: "income", amount: 500, date: "2026-08-10" }), // za ~3 tyg.
-      tx({ type: "income", amount: 1000, date: "2026-07-01" }),
+      tx({ type: "income", amount: 500, date: "2026-07-25" }), // jeszcze w lipcu
+      tx({ type: "income", amount: 1000, date: "2026-07-01" }), // już wpłynęło
     ];
     const r = walletTotals(transactions, [], TODAY);
     expect(r.pending).toBe(500);
     expect(r.balance).toBe(1000);
   });
 
-  it("ignores income planned further than 1 month ahead", () => {
+  it("ignores income planned for a later month", () => {
     const transactions = [
-      tx({ type: "income", amount: 500, date: "2026-12-31" }), // za ~5 mies.
+      tx({ type: "income", amount: 500, date: "2026-08-10" }), // sierpień
       tx({ type: "income", amount: 2000, date: "2028-07-01" }), // za 2 lata
     ];
     const r = walletTotals(transactions, [], TODAY);
     expect(r.pending).toBe(0);
+  });
+
+  it("monthly recurring income counts only this month's occurrence", () => {
+    // Dochód 100 zł co miesiąc od 25. — w oczekujących liczymy tylko wystąpienie
+    // z tego miesiąca (25 lipca), a nie sierpień, wrzesień itd.
+    const transactions = [
+      tx({ type: "income", amount: 100, date: "2026-07-25", recurrence: "monthly" }),
+    ];
+    const r = walletTotals(transactions, [], TODAY);
+    expect(r.pending).toBe(100);
   });
 
   it("a parent's goal contribution keeps balance flat (income + saved cancel)", () => {

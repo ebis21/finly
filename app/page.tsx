@@ -12,7 +12,7 @@ import { TransactionChart } from "@/components/TransactionChart";
 import { CategoryDashboard } from "@/components/CategoryDashboard";
 import { useFinly } from "@/lib/store";
 import { cn, formatPLN, todayISO, type Period } from "@/lib/utils";
-import { addPeriod, occurrencesInRange, sumByType } from "@/lib/recurrence";
+import { occurrencesInRange, sumByType } from "@/lib/recurrence";
 import type { TransactionType } from "@/lib/types";
 
 function monthKey(offset: number) {
@@ -71,11 +71,12 @@ export default function DashboardPage() {
   // "Mam" = zrealizowane dochody − wydatki − pieniądze odłożone na cele.
   const balance = realizedIncome - realizedExpense - savedInGoals;
 
-  // "Oczekujące" = zaplanowane od jutra do 1 miesiąca w przód (przychody −
-  // wydatki), wliczając powtarzające się wpłaty i płatności. Dalsza przyszłość
-  // (np. wypłata za rok) nie trafia do oczekujących.
-  const horizon = addPeriod(today, "monthly");
-  const future = occurrencesInRange(transactions, nextDayISO(today), horizon);
+  // "Oczekujące" = zaplanowane od jutra do końca BIEŻĄCEGO miesiąca (przychody
+  // − wydatki), wliczając powtarzające się wpłaty i płatności. Dochód cykliczny
+  // co miesiąc liczy się więc najwyżej raz (to wystąpienie z tego miesiąca) —
+  // sierpień i dalsze miesiące nie trafiają do oczekujących.
+  const endOfThisMonth = monthBounds(today.slice(0, 7)).to;
+  const future = occurrencesInRange(transactions, nextDayISO(today), endOfThisMonth);
   const pending = sumByType(future, "income") - sumByType(future, "expense");
 
   const thisMonth = monthKey(0);

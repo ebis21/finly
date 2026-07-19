@@ -1,10 +1,17 @@
 import { todayISO } from "@/lib/utils";
-import { addPeriod, occurrencesInRange, sumByType } from "@/lib/recurrence";
+import { occurrencesInRange, sumByType } from "@/lib/recurrence";
 import type { Goal, Transaction } from "@/lib/types";
+
+// Ostatni dzień miesiąca, w którym mieści się dana data ISO (RRRR-MM-DD).
+function endOfMonthISO(iso: string): string {
+  const [y, m] = iso.split("-").map(Number);
+  const last = new Date(y, m, 0).getDate();
+  return `${iso.slice(0, 7)}-${String(last).padStart(2, "0")}`;
+}
 
 export interface WalletTotals {
   balance: number; // "Mam" = zrealizowane dochody − wydatki − odłożone na cele
-  pending: number; // "Oczekujące" = zaplanowane od jutra do 1 miesiąca w przód
+  pending: number; // "Oczekujące" = zaplanowane od jutra do końca bieżącego miesiąca
   savedInGoals: number;
   realizedIncome: number;
   realizedExpense: number;
@@ -35,9 +42,10 @@ export function walletTotals(
   const realizedExpense = sumByType(realized, "expense");
   const savedInGoals = goals.reduce((acc, g) => acc + g.saved, 0);
 
-  // "Oczekujące" liczymy tylko na najbliższy miesiąc — np. wypłata za 10 dni
-  // się liczy, ale przychód zaplanowany za rok już nie.
-  const horizon = addPeriod(today, "monthly");
+  // "Oczekujące" liczymy tylko do końca bieżącego miesiąca. Dla dochodu
+  // cyklicznego co miesiąc bierzemy więc najwyżej jedno wystąpienie z tego
+  // miesiąca — kolejne miesiące (sierpień, wrzesień…) już się nie liczą.
+  const horizon = endOfMonthISO(today);
   const future = occurrencesInRange(transactions, nextDayISO(today), horizon);
   const pending = sumByType(future, "income") - sumByType(future, "expense");
 

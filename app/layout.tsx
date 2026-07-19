@@ -41,6 +41,10 @@ export const viewport: Viewport = {
   // obsłużyć bezpieczne obszary (notch / pasek gestów) przez env(safe-area-*).
   themeColor: "#f2faf5",
   viewportFit: "cover",
+  // Wymuszamy normalną skalę — bez tego apka potrafi otworzyć się „przybliżona”
+  // i trzeba ją ręcznie oddalać.
+  width: "device-width",
+  initialScale: 1,
 };
 
 export default function RootLayout({
