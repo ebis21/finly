@@ -83,7 +83,9 @@ export default function DashboardPage() {
   const prevMonth = monthKey(-1);
   const mThis = monthBounds(thisMonth);
   const mPrev = monthBounds(prevMonth);
-  const occThis = occurrencesInRange(transactions, mThis.from, mThis.to);
+  // Bieżący miesiąc liczymy tylko do dziś — dochód zaplanowany na później w tym
+  // miesiącu jeszcze nie „wpłynął”, więc nie doliczamy go do kafelka „Wpłynęło”.
+  const occThis = occurrencesInRange(transactions, mThis.from, today);
   const occPrev = occurrencesInRange(transactions, mPrev.from, mPrev.to);
   const incomeThis = sumByType(occThis, "income");
   const incomePrev = sumByType(occPrev, "income");

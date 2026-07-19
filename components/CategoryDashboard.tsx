@@ -4,25 +4,20 @@ import { useState } from "react";
 import { Trash2 } from "lucide-react";
 import { Modal } from "@/components/Modal";
 import { useFinly } from "@/lib/store";
-import { cn, formatDate, formatPLN, type Period } from "@/lib/utils";
+import { cn, formatDate, formatPLN, todayISO, type Period } from "@/lib/utils";
 import { occurrencesInRange } from "@/lib/recurrence";
 import type { TransactionType } from "@/lib/types";
 
-function pad(n: number) {
-  return String(n).padStart(2, "0");
-}
-
-// Zakres dat dla wybranego okresu (Miesiąc / Rok / Wszystko).
+// Zakres dat dla wybranego okresu (Miesiąc / Rok / Wszystko). Górną granicę
+// zawsze przycinamy do DZIŚ: przyszłe wystąpienia pozycji cyklicznych są
+// zapisane jako reguła, ale nie pokazujemy ich, dopóki ich dzień nie nadejdzie
+// (kieszonkowe „co miesiąc” ma wpadać co miesiąc, a nie od razu 6 razy).
 function periodRange(period: Period) {
-  const now = new Date();
-  const y = now.getFullYear();
-  if (period === "year") return { from: `${y}-01-01`, to: `${y}-12-31` };
-  if (period === "month") {
-    const m = now.getMonth();
-    const last = new Date(y, m + 1, 0).getDate();
-    return { from: `${y}-${pad(m + 1)}-01`, to: `${y}-${pad(m + 1)}-${pad(last)}` };
-  }
-  return { from: "0000-01-01", to: `${y}-12-31` }; // all
+  const today = todayISO();
+  const y = today.slice(0, 4);
+  if (period === "year") return { from: `${y}-01-01`, to: today };
+  if (period === "month") return { from: `${today.slice(0, 7)}-01`, to: today };
+  return { from: "0000-01-01", to: today }; // all
 }
 
 const CATEGORY_EMOJI: Record<string, string> = {

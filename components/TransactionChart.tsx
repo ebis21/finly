@@ -10,7 +10,7 @@ import {
   YAxis,
 } from "recharts";
 import { useFinly } from "@/lib/store";
-import { formatPLN, type Period } from "@/lib/utils";
+import { formatPLN, todayISO, type Period } from "@/lib/utils";
 import { occurrencesInRange, type Occurrence } from "@/lib/recurrence";
 import type { Transaction, TransactionType } from "@/lib/types";
 
@@ -53,8 +53,8 @@ function buildSeries(
     const month = now.getMonth();
     const days = new Date(year, month + 1, 0).getDate();
     const from = `${year}-${pad(month + 1)}-01`;
-    const to = `${year}-${pad(month + 1)}-${pad(days)}`;
-    const occ = occurrencesInRange(transactions, from, to).filter(
+    // Do dziś — przyszłe dni miesiąca zostają puste, aż realnie nadejdą.
+    const occ = occurrencesInRange(transactions, from, todayISO()).filter(
       (o) => o.type === type
     );
     const map = bucket(occ, 10);
@@ -70,7 +70,7 @@ function buildSeries(
     const occ = occurrencesInRange(
       transactions,
       `${year}-01-01`,
-      `${year}-12-31`
+      todayISO() // przyszłe miesiące roku pozostają puste do czasu ich nadejścia
     ).filter((o) => o.type === type);
     const map = bucket(occ, 7);
     const points: Point[] = [];
@@ -90,11 +90,10 @@ function buildSeries(
   const first = items.reduce((min, t) => (t.date < min ? t.date : min), items[0].date);
   const startYear = Number(first.slice(0, 4));
   const startMonth = Number(first.slice(5, 7)) - 1;
-  const lastDay = new Date(year, now.getMonth() + 1, 0).getDate();
   const occ = occurrencesInRange(
     transactions,
     `${first.slice(0, 7)}-01`,
-    `${year}-${pad(now.getMonth() + 1)}-${pad(lastDay)}`
+    todayISO() // tylko do dziś — bez rozwijania cyklicznych na przyszłość
   ).filter((o) => o.type === type);
   const map = bucket(occ, 7);
   const points: Point[] = [];
