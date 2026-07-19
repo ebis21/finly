@@ -31,7 +31,7 @@ export function BottomNav() {
     <nav className="fixed bottom-0 left-1/2 z-10 w-full max-w-md -translate-x-1/2 border-x-2 border-t-2 border-ink bg-white">
       <div
         className={cn(
-          "grid items-center px-2 pb-2 pt-1",
+          "grid items-center px-2 pt-1 pb-[calc(env(safe-area-inset-bottom)+0.5rem)]",
           navItems.length >= 4 ? "grid-cols-5" : "grid-cols-4"
         )}
       >

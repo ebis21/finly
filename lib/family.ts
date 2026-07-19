@@ -1,12 +1,14 @@
 import { requireSupabase } from "@/lib/supabase";
 import { walletTotals, type WalletTotals } from "@/lib/finance";
 import {
+  rowToAsset,
   rowToGoal,
   rowToTransaction,
+  type AssetRow,
   type GoalRow,
   type TransactionRow,
 } from "@/lib/hybrid-data";
-import type { Goal, Transaction } from "@/lib/types";
+import type { Asset, Goal, Transaction } from "@/lib/types";
 
 export interface FamilyMember {
   linkId: string;
@@ -15,9 +17,11 @@ export interface FamilyMember {
   email: string;
 }
 
+// Podgląd portfela dziecka u rodzica — WYŁĄCZNIE do odczytu.
 export interface ChildPortfolio {
   transactions: Transaction[];
   goals: Goal[];
+  assets: Asset[];
   totals: WalletTotals;
 }
 
@@ -80,7 +84,7 @@ export async function loadChildPortfolio(
   childId: string
 ): Promise<ChildPortfolio> {
   const client = requireSupabase();
-  const [tx, gl] = await Promise.all([
+  const [tx, gl, as] = await Promise.all([
     client
       .from("transactions")
       .select("*")
@@ -91,34 +95,17 @@ export async function loadChildPortfolio(
       .select("*")
       .eq("user_id", childId)
       .order("created_at", { ascending: true }),
+    client
+      .from("assets")
+      .select("*")
+      .eq("user_id", childId)
+      .order("created_at", { ascending: true }),
   ]);
   if (tx.error) throw new Error(tx.error.message);
   if (gl.error) throw new Error(gl.error.message);
+  if (as.error) throw new Error(as.error.message);
   const transactions = ((tx.data ?? []) as TransactionRow[]).map(rowToTransaction);
   const goals = ((gl.data ?? []) as GoalRow[]).map(rowToGoal);
-  return { transactions, goals, totals: walletTotals(transactions, goals) };
-}
-
-export async function addPocketMoney(
-  childId: string,
-  amount: number,
-  title: string
-): Promise<void> {
-  const { error } = await requireSupabase().rpc("parent_add_pocket_money", {
-    p_child: childId,
-    p_amount: amount,
-    p_title: title,
-  });
-  if (error) throw new Error(error.message);
-}
-
-export async function contributeToChildGoal(
-  goalId: string,
-  amount: number
-): Promise<void> {
-  const { error } = await requireSupabase().rpc("parent_contribute_to_goal", {
-    p_goal: goalId,
-    p_amount: amount,
-  });
-  if (error) throw new Error(error.message);
+  const assets = ((as.data ?? []) as AssetRow[]).map(rowToAsset);
+  return { transactions, goals, assets, totals: walletTotals(transactions, goals) };
 }

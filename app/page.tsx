@@ -12,7 +12,7 @@ import { TransactionChart } from "@/components/TransactionChart";
 import { CategoryDashboard } from "@/components/CategoryDashboard";
 import { useFinly } from "@/lib/store";
 import { cn, formatPLN, todayISO, type Period } from "@/lib/utils";
-import { occurrencesInRange, sumByType } from "@/lib/recurrence";
+import { addPeriod, occurrencesInRange, sumByType } from "@/lib/recurrence";
 import type { TransactionType } from "@/lib/types";
 
 function monthKey(offset: number) {
@@ -71,10 +71,11 @@ export default function DashboardPage() {
   // "Mam" = zrealizowane dochody − wydatki − pieniądze odłożone na cele.
   const balance = realizedIncome - realizedExpense - savedInGoals;
 
-  // "Oczekujące" = zaplanowane od jutra do końca roku (przychody − wydatki),
-  // wliczając powtarzające się wpłaty i płatności.
-  const endOfYear = `${today.slice(0, 4)}-12-31`;
-  const future = occurrencesInRange(transactions, nextDayISO(today), endOfYear);
+  // "Oczekujące" = zaplanowane od jutra do 1 miesiąca w przód (przychody −
+  // wydatki), wliczając powtarzające się wpłaty i płatności. Dalsza przyszłość
+  // (np. wypłata za rok) nie trafia do oczekujących.
+  const horizon = addPeriod(today, "monthly");
+  const future = occurrencesInRange(transactions, nextDayISO(today), horizon);
   const pending = sumByType(future, "income") - sumByType(future, "expense");
 
   const thisMonth = monthKey(0);
@@ -92,18 +93,20 @@ export default function DashboardPage() {
     <div className="flex flex-col gap-4">
       <section className="rounded-3xl border-2 border-ink bg-gradient-to-b from-brand to-brand-dark p-5 text-white shadow-brick-lg">
         <Studs className="text-white/40" />
-        <div className="mt-4 flex items-end justify-between gap-3">
-          <div className="min-w-0">
+        <div className="mt-4 flex items-start justify-between gap-3">
+          <div className="min-w-0 flex-1">
             <p className="text-sm font-bold text-emerald-100">Mam</p>
-            <p className="font-display text-5xl font-bold tracking-tight">
+            <p className="font-display text-4xl font-bold leading-tight tracking-tight [overflow-wrap:anywhere] sm:text-5xl">
               {formatPLN(balance)}
             </p>
           </div>
-          <div className="shrink-0 rounded-2xl border-2 border-white/25 bg-ink/35 px-3 py-2 text-right">
+          <div className="max-w-[45%] shrink-0 rounded-2xl border-2 border-white/25 bg-ink/35 px-3 py-2 text-right">
             <p className="text-[11px] font-bold uppercase tracking-wide text-emerald-100/80">
               Oczekujące
             </p>
-            <p className="font-display text-lg font-bold">{formatPLN(pending)}</p>
+            <p className="font-display text-lg font-bold [overflow-wrap:anywhere]">
+              {formatPLN(pending)}
+            </p>
           </div>
         </div>
         {savedInGoals > 0 && (

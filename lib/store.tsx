@@ -68,10 +68,10 @@ export function FinlyProvider({ children }: { children: React.ReactNode }) {
           return;
         }
         const client = requireSupabase();
-        let cloud = await loadCloudData(client);
+        let cloud = await loadCloudData(client, user.id);
         if (shouldImportLocalData(cloud, local)) {
           await importLocalData(client, user.id, local);
-          cloud = await loadCloudData(client);
+          cloud = await loadCloudData(client, user.id);
         }
         if (active) setData(cloud);
       } catch {

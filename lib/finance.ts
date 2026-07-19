@@ -1,10 +1,10 @@
 import { todayISO } from "@/lib/utils";
-import { occurrencesInRange, sumByType } from "@/lib/recurrence";
+import { addPeriod, occurrencesInRange, sumByType } from "@/lib/recurrence";
 import type { Goal, Transaction } from "@/lib/types";
 
 export interface WalletTotals {
   balance: number; // "Mam" = zrealizowane dochody − wydatki − odłożone na cele
-  pending: number; // "Oczekujące" = zaplanowane od jutra do końca roku
+  pending: number; // "Oczekujące" = zaplanowane od jutra do 1 miesiąca w przód
   savedInGoals: number;
   realizedIncome: number;
   realizedExpense: number;
@@ -35,8 +35,10 @@ export function walletTotals(
   const realizedExpense = sumByType(realized, "expense");
   const savedInGoals = goals.reduce((acc, g) => acc + g.saved, 0);
 
-  const endOfYear = `${today.slice(0, 4)}-12-31`;
-  const future = occurrencesInRange(transactions, nextDayISO(today), endOfYear);
+  // "Oczekujące" liczymy tylko na najbliższy miesiąc — np. wypłata za 10 dni
+  // się liczy, ale przychód zaplanowany za rok już nie.
+  const horizon = addPeriod(today, "monthly");
+  const future = occurrencesInRange(transactions, nextDayISO(today), horizon);
   const pending = sumByType(future, "income") - sumByType(future, "expense");
 
   return {
